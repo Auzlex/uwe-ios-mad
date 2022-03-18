@@ -56,7 +56,11 @@ public struct ExchangeInformation {
     {
         timezone = response.timezone
         serverTime = response.serverTime
-        symbols = response.symbols
+        //symbols = response.symbols
+        // array filter
+        //symbols = response.symbols.filter { $0.symbol.contains("USDT") } // NOTE: removes all other cyrpto assets that don't contain USD
+        symbols = response.symbols.filter { $0.symbol.suffix(4).contains("USDT") } // NOTE: removes all other cyrpto assets that don't end with USDT
+        
     }
     
 }
@@ -71,29 +75,46 @@ public final class CryptoInformationService: NSObject {
         super.init()
     }
     
-    public func getUpdatedExchangeInformation(_ completionHandler: @escaping((ExchangeInformation) -> Void) )
+//    public func getUpdatedExchangeInformation(_ completionHandler: @escaping((ExchangeInformation) -> Void) )
+//    {
+//        self.completionHandler = completionHandler
+//        makeDataRequest()
+//    }
+//    
+//    public func makeDataRequest()
+//    {
+//        // this url fetches exchange information for crypto currencies
+//        guard let exchange_url_format = "https://api.binance.com/api/v3/exchangeInfo"
+//            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+//        else { return }
+//    
+//        guard let url = URL(string: exchange_url_format) else { return }
+//    
+//        URLSession.shared.dataTask(with: url) { data, reponse, error in
+//            guard error == nil, let data = data else { return }
+//            
+//            if let response = try? JSONDecoder().decode(APIResponse.self, from: data) {
+//                self.completionHandler?(ExchangeInformation(response: response))
+//            }
+//        }.resume()
+//    }
+    
+    public func getUpdatedExchangeInformationAsync(_ completionHandler: @escaping((ExchangeInformation) -> Void) ) async
     {
         self.completionHandler = completionHandler
-        makeDataRequest()
+        try! await makeDataRequestAsync()
     }
     
-    public func makeDataRequest()
-    {
-        // this url fetches exchange information for crypto currencies
-        guard let exchange_url_format = "https://api.binance.com/api/v3/exchangeInfo"
-            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
-        else { return }
-    
-        guard let url = URL(string: exchange_url_format) else { return }
-    
-        URLSession.shared.dataTask(with: url) { data, reponse, error in
-            guard error == nil, let data = data else { return }
-            
+    func makeDataRequestAsync() async throws {
+        guard let url = URL(string: "https://api.binance.com/api/v3/exchangeInfo") else { fatalError("Missing URL") }
+            let urlRequest = URLRequest(url: url)
+            let (data, response) = try await URLSession.shared.data(for: urlRequest)
+
+            guard (response as? HTTPURLResponse)?.statusCode == 200 else { fatalError("Error while fetching data") }
             if let response = try? JSONDecoder().decode(APIResponse.self, from: data) {
                 self.completionHandler?(ExchangeInformation(response: response))
             }
-        }.resume()
-        
+        //print("Async decodedFood", response)
     }
     
 }

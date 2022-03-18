@@ -28,13 +28,26 @@ public class CCPCViewModel : ObservableObject {
     
     
     
-    public func refresh()
+//    public func refresh()
+//    {
+//        cryptoInformationService.getUpdatedExchangeInformation{
+//            exchangeInfo in DispatchQueue.main.async {
+//                self.symbols = exchangeInfo.symbols
+//            }
+//        }
+//
+//    }
+    
+    public func refresh() async
     {
-        cryptoInformationService.getUpdatedExchangeInformation{
-            exchangeInfo in DispatchQueue.main.async {
-                self.symbols = exchangeInfo.symbols
+        //Task{
+            await cryptoInformationService.getUpdatedExchangeInformationAsync{
+                exchangeInfo in DispatchQueue.main.async {
+                    self.symbols = exchangeInfo.symbols
+                }
             }
-        }
+            
+        //}
         
     }
     
