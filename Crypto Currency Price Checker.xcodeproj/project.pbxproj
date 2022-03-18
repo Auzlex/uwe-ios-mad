@@ -16,6 +16,7 @@
 		C43D345327B67D4300200556 /* Crypto_Currency_Price_CheckerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43D345227B67D4300200556 /* Crypto_Currency_Price_CheckerUITestsLaunchTests.swift */; };
 		C4831FB727D277B8003C8079 /* CryptoInformationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4831FB627D277B8003C8079 /* CryptoInformationService.swift */; };
 		C4A4205927DB6F4F00B7FA2D /* CCPCViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4A4205827DB6F4F00B7FA2D /* CCPCViewModel.swift */; };
+		C4FDDFE227E4B87F00136BB0 /* DetailedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4FDDFE127E4B87F00136BB0 /* DetailedView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +49,7 @@
 		C43D345227B67D4300200556 /* Crypto_Currency_Price_CheckerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Crypto_Currency_Price_CheckerUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		C4831FB627D277B8003C8079 /* CryptoInformationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoInformationService.swift; sourceTree = "<group>"; };
 		C4A4205827DB6F4F00B7FA2D /* CCPCViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CCPCViewModel.swift; sourceTree = "<group>"; };
+		C4FDDFE127E4B87F00136BB0 /* DetailedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +80,7 @@
 		C43D342927B67D3F00200556 = {
 			isa = PBXGroup;
 			children = (
+				C4FDDFE127E4B87F00136BB0 /* DetailedView.swift */,
 				C43D343427B67D3F00200556 /* Crypto Currency Price Checker */,
 				C43D344527B67D4300200556 /* Crypto Currency Price CheckerTests */,
 				C43D344F27B67D4300200556 /* Crypto Currency Price CheckerUITests */,
@@ -265,6 +268,7 @@
 			files = (
 				C4831FB727D277B8003C8079 /* CryptoInformationService.swift in Sources */,
 				C43D343827B67D3F00200556 /* ContentView.swift in Sources */,
+				C4FDDFE227E4B87F00136BB0 /* DetailedView.swift in Sources */,
 				C43D343627B67D3F00200556 /* Crypto_Currency_Price_CheckerApp.swift in Sources */,
 				C4A4205927DB6F4F00B7FA2D /* CCPCViewModel.swift in Sources */,
 			);
