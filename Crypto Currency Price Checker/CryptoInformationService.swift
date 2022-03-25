@@ -116,6 +116,23 @@ public final class CryptoInformationService: NSObject {
             }
         //print("Async decodedFood", response)
     }
+
+    func getPriceForSymbol(symbol: String) -> Double {
+
+        let url = URL(string: "https://api.binance.com/api/v3/ticker/price?symbol=\(symbol)")!
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            guard let data = data else { return }
+            do {
+                let json = try JSONSerialization.jsonObject(with: data, options: [])
+                print(json)
+            } catch {
+                print(error)
+            }
+        }
+        task.resume()
+        return 0.0
+
+    }
     
 }
 

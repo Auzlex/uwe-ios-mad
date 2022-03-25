@@ -44,11 +44,30 @@ public class CCPCViewModel : ObservableObject {
             await cryptoInformationService.getUpdatedExchangeInformationAsync{
                 exchangeInfo in DispatchQueue.main.async {
                     self.symbols = exchangeInfo.symbols
+                    // print the count of symbols
+                    print("count of symbols: \(self.symbols.count)")
+                    
                 }
             }
             
         //}
         
+    }
+
+    // this function is called when we want to async await fetch price from binance api
+    public func fetchprice_for_symbol(symbolName: String) -> Double {
+        
+        // await cryptoInformationService.getPriceForSymbol(symbol: symbolName) {
+        //     price in DispatchQueue.main.async {
+        //         print("price: \(price)")
+        //         return price
+        //     }
+        // }
+        
+        // invoke async function cryptoInformationService.getPriceForSymbol with symbolName
+
+        return 0
+
     }
     
 }

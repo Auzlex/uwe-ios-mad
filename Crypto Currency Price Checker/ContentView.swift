@@ -14,8 +14,69 @@ struct LoadingView: View {
     }
 }
 
-// USEFUL FOR IMAGE STUFF: https://sfsymbols.com/
+// This view is called upon by the navigation link
+// displays the information for given symbolName
+struct NavigationLinkView: View {
 
+    @ObservedObject var viewModel: CCPCViewModel
+    @State var symbolName: String = ""
+    @State var symbolIcon: String = ""
+    @State var price: String = ""
+
+    @State var isLoading: Bool = false
+
+    init(symbolName: String, activeViewModel: CCPCViewModel)
+    {
+        self.symbolName = symbolName
+        self.viewModel = activeViewModel
+    }
+
+    var body: some View {
+        ScrollView {
+
+            // if is loading, show loading view
+            if isLoading {
+                LoadingView()
+            }
+            else {
+                // if not loading, show the symbol information
+                VStack {
+                    Text("\(symbolName)")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .padding(.top, 20)
+                    Text("\(price)")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .padding(.top, 20)
+                    Text("\(symbolIcon)")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .padding(.top, 20)
+                }
+            }
+        }
+        .refreshable {
+            print("REFRESH GESTURE INVOKED")
+        }
+        .onAppear{
+            // fetch the symbol data from the exchange
+
+            // wait 3 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                self.isLoading = true
+                self.viewModel.fetchprice_for_symbol(symbolName: self.symbolName)
+                self.isLoading = false
+            }
+
+            //self.viewModel.fetchprice_for_symbol( symbolName: self.symbolName )
+        }
+        
+    }
+}
+
+
+// USEFUL FOR IMAGE STUFF: https://sfsymbols.com/
 struct ContentView: View {
     @ObservedObject var viewModel: CCPCViewModel
     @State var isLoading = true // used to switch views to the loading view when we are loading crypto assets
@@ -66,52 +127,69 @@ struct ContentView: View {
             
                 /*
 
-                 MARKETS NAVIGATION VIEW
+                    MARKETS NAVIGATION VIEW
 
                 */
             
-                NavigationView{
+                NavigationView {
                     if isLoading {
                         LoadingView()
                     } else {
                         //DoneLoadingView()
-                        List(viewModel.symbols, id: \.self) { symbol in
-                            //ForEach(searchResults, id: \.self) { name in
-                            NavigationLink(
-                                destination: Text("Viewing \(symbol.baseAsset) Details"),
-                                label: {
-                                    Text("\(symbol.symbol)")
-                                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                            })
-                            
-                            // disable from here
-                            HStack
-                            {
-                                Text(symbol.symbol)
-                                    .padding()
-                                    .foregroundColor(Color.white)
-                                    //.background(Color.gray)
-        
-                                Spacer()
-                                Text("+5%")
-                                    .foregroundColor(Color.green)
-                                    .frame(alignment: .trailing)
-                                    .padding()
-                                Text("☆")
-                                    .padding()
-                                Text("★")
-                                    .foregroundColor(Color.yellow)
-                                    .padding()
-                            }
-                            .frame(minWidth: 0, maxWidth: .infinity, alignment: .topLeading)
-                            .background(Color(red: 24 / 255, green: 24 / 255, blue: 24 / 255))
-                            .cornerRadius(5)
-                            .border(Color(red: 45 / 255, green: 45 / 255, blue: 45 / 255), width: 1)
-                            // to here this was experimental
+                        List { //(viewModel.symbols, id: \.self) { symbol in
+                            ForEach(searchResults, id: \.self) { symbol in
+                                NavigationLink(
+                                    destination: NavigationLinkView(symbolName: symbol, activeViewModel: viewModel),
+                                    label: {
+                                        Text("\(symbol)")
+                                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                                    }
+                                    // on open of the link do a htttp request to get the price of the crypto asset
+                                    //https://api.binance.com/api/v3/ticker/price?symbol=
 
+
+                                )
+                                
+                                // disable from here
+                                HStack
+                                {
+                                    Text(symbol)
+                                        .padding()
+                                        .foregroundColor(Color.white)
+                                        //.background(Color.gray)
+            
+                                    Spacer()
+                                    Text("+5%")
+                                        .foregroundColor(Color.green)
+                                        .frame(alignment: .trailing)
+                                        .padding()
+                                    Text("☆")
+                                        .padding()
+                                    Text("★")
+                                        .foregroundColor(Color.yellow)
+                                        .padding()
+                                }
+                                .frame(minWidth: 0, maxWidth: .infinity, alignment: .topLeading)
+                                .background(Color(red: 24 / 255, green: 24 / 255, blue: 24 / 255))
+                                .cornerRadius(5)
+                                .border(Color(red: 45 / 255, green: 45 / 255, blue: 45 / 255), width: 1)
+                                // to here this was experimental
+                            }
                         }
                         .searchable(text: $searchText) // https://www.hackingwithswift.com/quick-start/swiftui/how-to-add-a-search-bar-to-filter-your-data
                         .navigationBarTitle("Crypto Assets")
+                        .refreshable {
+                            // this code is invoked on refresh gesture for this tab
+                            print("REFRESH SYMBOLS: isloading False")
+                            isLoading = false
+                            DispatchQueue.main.async {
+                                Task{
+                                    await viewModel.refresh()
+                                    isLoading = false // tells our view we are ready to view once loaded
+                                    print("REFRESH SYMBOLS: isloading TRUE")
+                                }
+                            }
+                        }
                     }
                         
                 }
@@ -257,7 +335,36 @@ struct ContentView: View {
 //            }
 //        }
     }
-    
+
+    /* 
+
+        search result query code for browser
+
+    */
+
+    // func searchResult(for query: String) -> [String] {
+    //     return viewModel.symbols.filter { $0.symbol.lowercased().contains(query.lowercased()) }.map { $0.symbol }
+    // }
+
+    // update var searchResults to return filtered symbols
+
+    var searchResults: [String] {
+        if searchText.isEmpty {
+            return viewModel.symbols.map { $0.symbol }
+        } else {
+            return viewModel.symbols.filter { $0.symbol.lowercased().contains(searchText.lowercased()) }.map { $0.symbol }
+        }
+        //return viewModel.symbols.filter { $0.symbol.lowercased().contains(searchText.lowercased()) }.map { $0.symbol }
+    }
+
+    // var searchResults: [String] {
+    //     if searchText.isEmpty {
+    //         return viewModel.symbols
+    //     } else {
+    //         return viewModel.symbols.filter { $0.contains(searchText) }
+    //     }
+    // }
+
     
 }
 
