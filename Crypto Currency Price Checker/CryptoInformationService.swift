@@ -75,30 +75,6 @@ public final class CryptoInformationService: NSObject {
         super.init()
     }
     
-//    public func getUpdatedExchangeInformation(_ completionHandler: @escaping((ExchangeInformation) -> Void) )
-//    {
-//        self.completionHandler = completionHandler
-//        makeDataRequest()
-//    }
-//    
-//    public func makeDataRequest()
-//    {
-//        // this url fetches exchange information for crypto currencies
-//        guard let exchange_url_format = "https://api.binance.com/api/v3/exchangeInfo"
-//            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
-//        else { return }
-//    
-//        guard let url = URL(string: exchange_url_format) else { return }
-//    
-//        URLSession.shared.dataTask(with: url) { data, reponse, error in
-//            guard error == nil, let data = data else { return }
-//            
-//            if let response = try? JSONDecoder().decode(APIResponse.self, from: data) {
-//                self.completionHandler?(ExchangeInformation(response: response))
-//            }
-//        }.resume()
-//    }
-    
     public func getUpdatedExchangeInformationAsync(_ completionHandler: @escaping((ExchangeInformation) -> Void) ) async
     {
         self.completionHandler = completionHandler
@@ -117,22 +93,42 @@ public final class CryptoInformationService: NSObject {
         //print("Async decodedFood", response)
     }
 
-    func getPriceForSymbol(symbol: String) -> Double {
+    public func getPriceForSymbol(symbol: String, completion: @escaping (Double)->() ) async {
 
-        let url = URL(string: "https://api.binance.com/api/v3/ticker/price?symbol=\(symbol)")!
+        let url = URL(string: "https://api.binance.com/api/v3/ticker/price?symbol=\(symbol.uppercased())")!
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             guard let data = data else { return }
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: [])
                 print(json)
+
+                // create an empty double var
+                var price: Double = -1
+                if let dictionary = json as? [String: Any] {
+
+                    for (key, value) in dictionary {
+                        // access all key / value pairs in dictionary
+                        //print(key, value)
+                        
+                        // if the key is "price" then set the price to the value as double
+                        if key == "price" {
+                            // convert price value from str to double
+                            price = Double(value as! String) ?? 0.0
+                            print("getPriceForSymbol:", price)
+                            break
+                        }
+                        
+                    }
+                }
+                
+                completion(price)
+
             } catch {
                 print(error)
             }
         }
         task.resume()
-        return 0.0
 
-    }
-    
+    }  
 }
 

@@ -23,50 +23,36 @@ public class CCPCViewModel : ObservableObject {
     public init( cryptoInformationService: CryptoInformationService )
     {
         self.cryptoInformationService = cryptoInformationService
-        //symbols = self.cryptoInformationService.
     }
-    
-    
-    
-//    public func refresh()
-//    {
-//        cryptoInformationService.getUpdatedExchangeInformation{
-//            exchangeInfo in DispatchQueue.main.async {
-//                self.symbols = exchangeInfo.symbols
-//            }
-//        }
-//
-//    }
     
     public func refresh() async
     {
-        //Task{
-            await cryptoInformationService.getUpdatedExchangeInformationAsync{
-                exchangeInfo in DispatchQueue.main.async {
-                    self.symbols = exchangeInfo.symbols
-                    // print the count of symbols
-                    print("count of symbols: \(self.symbols.count)")
-                    
-                }
+        await cryptoInformationService.getUpdatedExchangeInformationAsync{
+            exchangeInfo in DispatchQueue.main.async {
+                self.symbols = exchangeInfo.symbols
+                // print the count of symbols
+                print("count of symbols: \(self.symbols.count)")
+                
             }
-            
-        //}
-        
+        }
     }
 
     // this function is called when we want to async await fetch price from binance api
-    public func fetchprice_for_symbol(symbolName: String) -> Double {
+    public func fetchprice_for_symbol(symbolName: String, completion: @escaping (Double)->() ) async {
         
-        // await cryptoInformationService.getPriceForSymbol(symbol: symbolName) {
-        //     price in DispatchQueue.main.async {
-        //         print("price: \(price)")
-        //         return price
-        //     }
-        // }
-        
-        // invoke async function cryptoInformationService.getPriceForSymbol with symbolName
+        // this async function is called on the crypto information service class which takes in a SYMBOL NAME
+        // this is in binance standard so for example symbol name needs to be BTCUSDT
+        // returns prices fetched in dispatchque fetch price we then pass this back through
+        // another completion handler
+        await cryptoInformationService.getPriceForSymbol(symbol: symbolName) {
+            
+            fetched_price in DispatchQueue.main.async {
 
-        return 0
+                print("fetchprice_for_symbol -> cryptoInformationService.getPriceForSymbol: \(fetched_price)")
+                completion(fetched_price)
+                
+            }
+        }
 
     }
     

@@ -20,56 +20,84 @@ struct NavigationLinkView: View {
 
     @ObservedObject var viewModel: CCPCViewModel
     @State var symbolName: String = ""
+    @State var symbolNameAlone: String = ""
     @State var symbolIcon: String = ""
-    @State var price: String = ""
+    @State var price: Double = 0
 
-    @State var isLoading: Bool = false
+    @State var isLoading: Bool = true
 
     init(symbolName: String, activeViewModel: CCPCViewModel)
     {
         self.symbolName = symbolName
+        self.symbolNameAlone = String(String(symbolName).dropLast(4))
         self.viewModel = activeViewModel
     }
 
     var body: some View {
-        ScrollView {
+        NavigationView {
 
             // if is loading, show loading view
             if isLoading {
                 LoadingView()
             }
             else {
+                ScrollView{
                 // if not loading, show the symbol information
-                VStack {
-                    Text("\(symbolName)")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .padding(.top, 20)
-                    Text("\(price)")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .padding(.top, 20)
-                    Text("\(symbolIcon)")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .padding(.top, 20)
+                    VStack {
+                        Text("\(symbolName)")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .padding(.top, 20)
+                        Text("$\(self.price) PER \(symbolNameAlone)")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .padding(.top, 20)
+                        Text("\(symbolIcon)")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .padding(.top, 20)
+                    }
                 }
             }
         }
         .refreshable {
             print("REFRESH GESTURE INVOKED")
+            Task {
+                // we await price data
+                await viewModel.fetchprice_for_symbol(symbolName: self.symbolName) {
+                    
+                    second_fetched_price in DispatchQueue.main.async {
+                        self.price = second_fetched_price
+                        isLoading = false
+                    }
+                }
+                print("viewModel.fetchprice_for_symbol -> :", self.price)
+            }
         }
         .onAppear{
             // fetch the symbol data from the exchange
 
             // wait 3 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                self.isLoading = true
-                self.viewModel.fetchprice_for_symbol(symbolName: self.symbolName)
+            /*DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                //self.isLoading = true
+                //await self.viewModel.fetchprice_for_symbol(symbolName: self.symbolName)
                 self.isLoading = false
-            }
+            }*/
 
-            //self.viewModel.fetchprice_for_symbol( symbolName: self.symbolName )
+            DispatchQueue.main.async {
+                //await viewModel.refresh()
+                Task {
+                    // we await price data
+                    await viewModel.fetchprice_for_symbol(symbolName: self.symbolName) {
+                        
+                        second_fetched_price in DispatchQueue.main.async {
+                            self.price = second_fetched_price
+                            isLoading = false
+                        }
+                    }
+                    print("viewModel.fetchprice_for_symbol -> :", self.price)
+                }
+            }
         }
         
     }
