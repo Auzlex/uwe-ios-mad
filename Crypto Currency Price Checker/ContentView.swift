@@ -22,6 +22,8 @@ struct NavigationLinkView: View {
     @State var symbolName: String = ""
     @State var symbolNameAlone: String = ""
     @State var symbolIcon: String = ""
+    //@ObservedObject var imageLoader:ImageLoader
+    //@State var image:UIImage = UIImage()
     @State var price: Double = 0
 
     @State var isLoading: Bool = true
@@ -31,6 +33,21 @@ struct NavigationLinkView: View {
         self.symbolName = symbolName
         self.symbolNameAlone = String(String(symbolName).dropLast(4))
         self.viewModel = activeViewModel
+        
+//        //https://cryptoicons.org/api/icon/eth/200
+//        // Create URL
+//        let url = URL(string: "https://cryptoicons.org/api/icon/\(symbolNameAlone)/200")!
+//
+//        DispatchQueue.global().async {
+//            // Fetch Image Data
+//            if let data = try? Data(contentsOf: url) {
+//                DispatchQueue.main.async {
+//                    // Create Image and Update Image View
+//                    self.image = UIImage(data: data)
+//                }
+//            }
+//        }
+        
     }
 
     var body: some View {
@@ -56,6 +73,9 @@ struct NavigationLinkView: View {
                             .font(.largeTitle)
                             .fontWeight(.bold)
                             .padding(.top, 20)
+                        AsyncImage(url: URL(string:"https://i.redd.it/1lcjhrmv57f61.jpg")) //"https://cryptoicons.org/api/icon/\(symbolNameAlone)/200"))
+                        
+                        
                     }
                 }
             }
