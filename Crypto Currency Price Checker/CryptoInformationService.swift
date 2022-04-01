@@ -78,6 +78,9 @@ public final class CryptoInformationService: NSObject {
     public func getUpdatedExchangeInformationAsync(_ completionHandler: @escaping((ExchangeInformation) -> Void) ) async
     {
         self.completionHandler = completionHandler
+        /*
+         Thread 5: Fatal error: 'try!' expression unexpectedly raised an error: Error Domain=NSURLErrorDomain Code=-1003 "A server with the specified hostname could not be found." UserInfo={_kCFStreamErrorCodeKey=8, NSUnderlyingError=0x6000015edbc0 {Error Domain=kCFErrorDomainCFNetwork Code=-1003 "(null)" UserInfo={_NSURLErrorNWPathKey=satisfied (Path is satisfied), interface: en1, _kCFStreamErrorCodeKey=8, _kCFStreamErrorDomainKey=12}}, _NSURLErrorFailingURLSessionTaskErrorKey=LocalDataTask <8C1CCCF0-C979-4FF3-A4EF-6809DED2
+         */
         try! await makeDataRequestAsync()
     }
     
