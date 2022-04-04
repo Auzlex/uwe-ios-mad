@@ -20,6 +20,8 @@ struct ContentView: View {
     @State var isLoading = true // used to switch views to the loading view when we are loading crypto assets
     @State private var searchText = ""
     
+    @StateObject var favorites = Favorites()
+    
     init(viewModel: CCPCViewModel)
     {
         self.viewModel = viewModel
@@ -76,6 +78,7 @@ struct ContentView: View {
                         
                 }
                     //.onAppear(perform: viewModel.refresh)
+                    .environmentObject(favorites)
                     .onAppear {
                         // perform an asynchronous task that will perform fetching view model data
                         DispatchQueue.main.async {
@@ -100,6 +103,7 @@ struct ContentView: View {
                     .searchable(text: $searchText)
                     
                 }
+                .environmentObject(favorites)
                 .tabItem {
                     Image(systemName: "bookmark.fill")
                     Text("Favourites")

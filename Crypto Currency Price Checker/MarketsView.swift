@@ -47,13 +47,8 @@ struct NavigationLinkView: View {
                             .font(.largeTitle)
                             .fontWeight(.bold)
                             .padding(.top, 20)
-//                        Text("\(symbolIcon)")
-//                            .font(.largeTitle)
-//                            .fontWeight(.bold)
-//                            .padding(.top, 20)
                     //https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@bea1a9722a8c63169dcc06e86182bf2c55a76bbc/32/color/btc.png
                         AsyncImage(url: URL(string:"https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@bea1a9722a8c63169dcc06e86182bf2c55a76bbc/32/color/\(symbolNameAlone.lowercased()).png"))
-                        //AsyncImage(url: URL(string:"https://i.redd.it/1lcjhrmv57f61.jpg")) //"https://cryptoicons.org/api/icon/\(symbolNameAlone)/200"))
                     }
                 }
             }
@@ -105,8 +100,8 @@ struct MarketsView: View {
     
     @ObservedObject var viewModel: CCPCViewModel
     @State private var searchText = ""
-    
-    @StateObject var favorites = Favorites()
+ 
+    @EnvironmentObject var favorites: Favorites
     
     init(viewModel: CCPCViewModel)
     {
@@ -129,7 +124,18 @@ struct MarketsView: View {
                 NavigationLink(
                     destination: NavigationLinkView(symbolName: symbol, activeViewModel: viewModel),
                     label: {
-                        AsyncImage(url: URL(string:"https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@bea1a9722a8c63169dcc06e86182bf2c55a76bbc/32/color/\(String(String(symbol).dropLast(4)).lowercased()).png"))
+                        AsyncImage(
+                            url:URL(string:"https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@bea1a9722a8c63169dcc06e86182bf2c55a76bbc/32/color/\(String(String(symbol).dropLast(4)).lowercased()).png"),
+                            content: { image in
+                                image.resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(maxHeight: 32)
+                            },
+                            placeholder: {
+                                //ProgressView()
+                                Image("nosign")
+                            }
+                        )
                         Text("\(symbol)")
                             .font(.system(size: 14, weight: .bold, design: .rounded))
                         Spacer()
@@ -143,15 +149,16 @@ struct MarketsView: View {
 //                                            .foregroundColor(Color.yellow)
 //                                            .padding()
                         
-//                        Button(favorites.contains(resort) ? "Remove from Favorites" : "Add to Favorites") {
-//                            if favorites.contains(resort) {
-//                                favorites.remove(resort)
-//                            } else {
-//                                favorites.add(resort)
-//                            }
-//                        }
-//                        .buttonStyle(.borderedProminent)
-//                        .padding()
+                        
+                        Button(favorites.contains(symbol) ? "★" : "☆") {
+                            if favorites.contains(symbol) {
+                                favorites.remove(symbol)
+                            } else {
+                                favorites.add(symbol)
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        //.padding()
                     }
                     // on open of the link do a htttp request to get the price of the crypto asset
                     //https://api.binance.com/api/v3/ticker/price?symbol=

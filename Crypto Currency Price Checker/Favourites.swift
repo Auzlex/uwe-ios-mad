@@ -22,21 +22,21 @@ class Favorites: ObservableObject {
     }
 
     // returns true if our set contains this resort
-    func contains(_ apisymbol: APISymbol) -> Bool {
-        symbols.contains(apisymbol.symbol)
+    func contains(_ apisymbol: String) -> Bool {
+        symbols.contains(apisymbol)
     }
 
     // adds the resort to our set, updates all views, and saves the change
-    func add(_ apisymbol: APISymbol) {
+    func add(_ apisymbol: String) {
         objectWillChange.send()
-        symbols.insert(apisymbol.symbol)
+        symbols.insert(apisymbol)
         save()
     }
 
     // removes the resort from our set, updates all views, and saves the change
-    func remove(_ apisymbol: APISymbol) {
+    func remove(_ apisymbol: String) {
         objectWillChange.send()
-        symbols.remove(apisymbol.symbol)
+        symbols.remove(apisymbol)
         save()
     }
 
