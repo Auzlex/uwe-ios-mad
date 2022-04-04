@@ -8,13 +8,8 @@
 import Foundation
 import SwiftUI
 
-private let defaultIcon = "❓"
-
 public class CCPCViewModel : ObservableObject {
-    //@Published var symbol: String = "---"
-    //@Published var symbolIcon: String = defaultIcon
-    //@Published var price: String = "£--.--"
-    
+
     //@Published var exchangeInformation: [ExchangeInformation]()
     @Published var symbols = [APISymbol]()
     
