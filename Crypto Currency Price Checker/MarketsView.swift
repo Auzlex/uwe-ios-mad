@@ -11,15 +11,23 @@ import SwiftUI
 /*
  MarketsView Navigation Link View Object
 */
+
+
 struct NavigationLinkView: View {
 
     @ObservedObject var viewModel: CCPCViewModel
     @State var symbolName: String = "" // the full name of the symbol
     @State var symbolNameAlone: String = "" // the symbolname stand alone removing USDT
-    @State var price: Double = 0 // stores price of currencies
+    @State var price: Double = 0 // stores price of currency
+    @State var priceChange: [Double] = [ 0, 0 ] // stores price change data
+    @State var price_percentage_hour_change: Double = 0 // stores percentage of price change
 
     @State var isLoading: Bool = true // async loading variable for this view
 
+    public func calculatePercentage( openPrice:Double, lastPrice:Double ) -> Double {
+        return 0 + ( lastPrice - openPrice )/(openPrice)
+    }
+    
     init(symbolName: String, activeViewModel: CCPCViewModel)
     {
         self.symbolName = symbolName
@@ -47,6 +55,10 @@ struct NavigationLinkView: View {
                             .font(.largeTitle)
                             .fontWeight(.bold)
                             .padding(.top, 20)
+                        Text("\(self.price_percentage_hour_change)% 24h")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .padding(.top, 20)
                     //https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@bea1a9722a8c63169dcc06e86182bf2c55a76bbc/32/color/btc.png
                         AsyncImage(url: URL(string:"https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@bea1a9722a8c63169dcc06e86182bf2c55a76bbc/32/color/\(symbolNameAlone.lowercased()).png"))
                     }
@@ -56,15 +68,39 @@ struct NavigationLinkView: View {
         .refreshable {
             print("REFRESH GESTURE INVOKED")
             Task {
+                // WARNING: THIS DONE ON REFRESH
+                // WARNING: THIS DONE ON REFRESH
+                // WARNING: THIS DONE ON REFRESH
+                // WARNING: THIS DONE ON REFRESH
+                // WARNING: THIS DONE ON REFRESH
                 // we await price data
-                await viewModel.fetchprice_for_symbol(symbolName: self.symbolName) {
-                    
-                    second_fetched_price in DispatchQueue.main.async {
-                        self.price = second_fetched_price
-                        isLoading = false
+                async let load1: () = await viewModel.fetchprice_for_symbol(symbolName: self.symbolName)
+                {
+                    fetched_price in DispatchQueue.main.async {
+                        self.price = fetched_price
                     }
                 }
+                
+                async let load2: () = await viewModel.fetch24price_change_for_symbol(symbolName: self.symbolName)
+                {
+                    price_change in DispatchQueue.main.async {
+                        self.priceChange = price_change
+                        self.price_percentage_hour_change = ( self.priceChange[1] - self.priceChange[0] )/(self.priceChange[0])
+                    }
+                }
+                
+                
+                
+                let pricedata: [()] = await [load1, load2]
+                
+                isLoading = false
+                
                 print("viewModel.fetchprice_for_symbol -> :", self.price)
+                print("viewModel.fetchprice_for_symbol -> :", self.priceChange)
+                print("price_percentage_hour_change -> :", self.price_percentage_hour_change)
+                // WARNING: THIS DONE ON REFRESH
+                // WARNING: THIS DONE ON REFRESH
+                // WARNING: THIS DONE ON REFRESH
             }
         }
         .onAppear{
@@ -80,14 +116,41 @@ struct NavigationLinkView: View {
             DispatchQueue.main.async {
                 Task {
                     // we await price data
-                    await viewModel.fetchprice_for_symbol(symbolName: self.symbolName) {
-                        
-                        second_fetched_price in DispatchQueue.main.async {
-                            self.price = second_fetched_price
-                            isLoading = false
+//                    await viewModel.fetchprice_for_symbol(symbolName: self.symbolName) {
+//
+//                        second_fetched_price in DispatchQueue.main.async {
+//                            self.price = second_fetched_price
+//                            isLoading = false
+//                        }
+//                    }
+//                    print("viewModel.fetchprice_for_symbol -> :", self.price)
+                    
+                    // WARNING: THIS DONE ON REFRESH
+                    // we await price data
+                    async let load1: () = await viewModel.fetchprice_for_symbol(symbolName: self.symbolName)
+                    {
+                        fetched_price in DispatchQueue.main.async {
+                            self.price = fetched_price
                         }
                     }
+                    
+                    async let load2: () = await viewModel.fetch24price_change_for_symbol(symbolName: self.symbolName)
+                    {
+                        price_change in DispatchQueue.main.async {
+                            self.priceChange = price_change
+                            self.price_percentage_hour_change = ( self.priceChange[1] - self.priceChange[0] )/(self.priceChange[0])
+                        }
+                    }
+                    
+                    
+                    
+                    let pricedata: [()] = await [load1, load2]
+                    
+                    isLoading = false
+                    
                     print("viewModel.fetchprice_for_symbol -> :", self.price)
+                    print("viewModel.fetchprice_for_symbol -> :", self.priceChange)
+                    print("price_percentage_hour_change -> :", self.price_percentage_hour_change)
                 }
             }
         }

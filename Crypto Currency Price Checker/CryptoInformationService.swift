@@ -15,6 +15,7 @@
 // remember to remove this crap OKAY!!!!!!!!!
 // TODO: Check this out mate https://betterprogramming.pub/build-a-bitcoin-price-ticker-in-swiftui-b16d9ca566a8, remember to remove this crap OKAY!!!!!!!!!
 // https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md
+// get price history 24h https://api.binance.com/api/v1/ticker/24hr?symbol=BTCUSDT
 // remember to remove this crap OKAY!!!!!!!!!
 // remember to remove this crap OKAY!!!!!!!!!
 // remember to remove this crap OKAY!!!!!!!!!
@@ -117,7 +118,7 @@ public final class CryptoInformationService: NSObject {
                         if key == "price" {
                             // convert price value from str to double
                             price = Double(value as! String) ?? 0.0
-                            print("getPriceForSymbol:", price)
+                            //print("getPriceForSymbol:", price)
                             break
                         }
                         
@@ -132,6 +133,61 @@ public final class CryptoInformationService: NSObject {
         }
         task.resume()
 
-    }  
+    }
+    
+    public func get24hourPriceHistory(symbol: String, completion: @escaping ([Double])->()) async {
+        
+        // this web request will fetch the 24 hour price history
+        let url = URL(string: "https://api.binance.com/api/v1/ticker/24hr?symbol=\(symbol.uppercased())")!
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            guard let data = data else { return }
+            do {
+                let json = try JSONSerialization.jsonObject(with: data, options: [])
+                print(json)
+
+                // create an empty double var
+                var openPrice: Double = -1
+                var lastPrice: Double = -1
+                if let dictionary = json as? [String: Any] {
+
+                    for (key, value) in dictionary {
+                        // access all key / value pairs in dictionary
+                        //print(key, value)
+                        
+//                        // if the key is "price" then set the price to the value as double
+//                        if key == "priceChangePercent" {
+//                            // convert price value from str to double
+//                            price_change = Double(value as! String) ?? 0.0
+//                            print("priceChangePercent:", price_change)
+//                            break
+//                        }
+                        
+                        if key == "openPrice"
+                        {
+                            openPrice = Double(value as! String) ?? 0.0
+                            print("openPrice:", openPrice)
+                        }
+                        
+                        if key == "lastPrice"
+                        {
+                            lastPrice = Double(value as! String) ?? 0.0
+                            print("lastPrice:", lastPrice)
+                        }
+                        
+                        
+                        
+                    }
+                }
+                
+                completion([ openPrice, lastPrice ])
+
+            } catch {
+                print(error)
+            }
+        }
+        task.resume()
+        
+    }
+    
 }
 
