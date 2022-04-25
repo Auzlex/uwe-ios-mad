@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import SwiftUICharts
 
 /*
  MarketsView Navigation Link View Object
@@ -17,12 +18,42 @@ struct NavigationLinkView: View {
 
     @ObservedObject var viewModel: CCPCViewModel
     @State var symbolName: String = "" // the full name of the symbol
+    @State var symbolPrecision: Int = 2 // default is round to 2 decimal places
     @State var symbolNameAlone: String = "" // the symbolname stand alone removing USDT
     @State var price: Double = 0 // stores price of currency
     @State var priceChange: [Double] = [ 0, 0 ] // stores price change data
     @State var price_percentage_hour_change: Double = 0 // stores percentage of price change
 
     @State var isLoading: Bool = true // async loading variable for this view
+    
+    static func weekOfData() -> LineChartData {
+        let data = LineDataSet(dataPoints: [
+            LineChartDataPoint(value: 12000, xAxisLabel: "M", description: "Monday"),
+            LineChartDataPoint(value: 13000, xAxisLabel: "T", description: "Tuesday"),
+            LineChartDataPoint(value: 8000,  xAxisLabel: "W", description: "Wednesday"),
+            LineChartDataPoint(value: 17500, xAxisLabel: "T", description: "Thursday"),
+            LineChartDataPoint(value: 16000, xAxisLabel: "F", description: "Friday"),
+            LineChartDataPoint(value: 11000, xAxisLabel: "S", description: "Saturday"),
+            LineChartDataPoint(value: 9000,  xAxisLabel: "S", description: "Sunday")
+        ],
+        legendTitle: "Test One",
+        pointStyle: PointStyle(),
+        style: LineStyle(lineColour: ColourStyle(colours: [Color.red.opacity(0.50),
+                                                           Color.red.opacity(0.00)],
+                                                 startPoint: .top,
+                                                 endPoint: .bottom),
+                         lineType: .line))
+        
+        return LineChartData(dataSets: data,
+                             metadata: ChartMetadata(title: "Some Data", subtitle: "A Week"),
+                             xAxisLabels: ["Monday", "Thursday", "Sunday"],
+                             chartStyle: LineChartStyle(infoBoxPlacement: .header,
+                                                        markerType: .full(attachment: .point),
+                                                        xAxisLabelsFrom: .chartData(rotation: .degrees(0)),
+                                                        baseline: .minimumWithMaximum(of: 5000)))
+    }
+    
+    @State var data : LineChartData = weekOfData()
 
     public func calculatePercentage( openPrice:Double, lastPrice:Double ) -> Double {
         return 0 + ( lastPrice - openPrice )/(openPrice)
@@ -31,6 +62,18 @@ struct NavigationLinkView: View {
     init(symbolName: String, activeViewModel: CCPCViewModel)
     {
         self.symbolName = symbolName
+        
+        if let foundelement = activeViewModel.symbols.enumerated().first(where: {$0.element.symbol == symbolName}) {
+            self.symbolPrecision = foundelement.element.quotePrecision
+            print("symbolPrecision: " , foundelement.element.baseAssetPrecision)
+            print("quotePrecision: " , foundelement.element.quotePrecision)
+            print("quoteAssetPrecision: " , foundelement.element.quoteAssetPrecision)
+            print("quoteCommissionPrecision: " , foundelement.element.quoteCommissionPrecision)
+            print("baseAsset: " , foundelement.element.baseAsset)
+        } else {
+           print("no symbol precision could have been found for this symbol")
+        }
+    
         self.symbolNameAlone = String(String(symbolName).dropLast(4))
         self.viewModel = activeViewModel
     }
@@ -41,30 +84,96 @@ struct NavigationLinkView: View {
             // if is loading, show loading view
             if isLoading {
                 LoadingView()
+                
             }
             else {
-                ScrollView{
-                // if not loading, show the symbol information
-                    VStack {
-                        
-                        Text("\(symbolName)")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                            .padding(.top, 20)
-                        Text("$\(self.price) PER \(symbolNameAlone)")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                            .padding(.top, 20)
-                        Text("\(self.price_percentage_hour_change)% 24h")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                            .padding(.top, 20)
-                    //https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@bea1a9722a8c63169dcc06e86182bf2c55a76bbc/32/color/btc.png
-                        AsyncImage(url: URL(string:"https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@bea1a9722a8c63169dcc06e86182bf2c55a76bbc/32/color/\(symbolNameAlone.lowercased()).png"))
+                ScrollView {
+                    HStack{
+                        AsyncImage(url:URL(string:"https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@bea1a9722a8c63169dcc06e86182bf2c55a76bbc/128/color/\(symbolNameAlone.lowercased()).png")
+                        )
+                            .padding(.all, 5)
+                        VStack {
+                            Text("\(symbolName)")
+                                .font(.largeTitle)
+                                .fontWeight(.bold)
+                                //.padding(.top, 20)
+                            Text("$\(self.price, specifier: "%.\(self.symbolPrecision)f") PER \(symbolNameAlone)")
+                                .font(.body)
+                                //.fontWeight(.bold)
+                                .padding(.top, 5)
+                            Text("24H CHANGE: \(self.price_percentage_hour_change)% 24h")
+                                .font(.body)
+                                //.fontWeight(.bold)
+                                .padding(.top, 5)
+                        }
+                        .padding()
                     }
+                    
+                    VStack {
+                        FilledLineChart(chartData: data)
+                            .filledTopLine(chartData: data,
+                                           lineColour: ColourStyle(colour: .red),
+                                           strokeStyle: StrokeStyle(lineWidth: 3))
+                            .touchOverlay(chartData: data, unit: .suffix(of: "Steps"))
+                            .pointMarkers(chartData: data)
+                            .yAxisPOI(chartData: data,
+                                      markerName: "Step Count Aim",
+                                      markerValue: 15_000,
+                                      labelPosition: .center(specifier: "%.0f"),
+                                      labelColour: Color.black,
+                                      labelBackground: Color(red: 1.0, green: 0.75, blue: 0.25),
+                                      lineColour: Color(red: 1.0, green: 0.75, blue: 0.25),
+                                      strokeStyle: StrokeStyle(lineWidth: 3, dash: [5,10]))
+                            .yAxisPOI(chartData: data,
+                                      markerName: "Minimum Recommended",
+                                      markerValue: 10_000,
+                                      labelPosition: .center(specifier: "%.0f"),
+                                      labelColour: Color.white,
+                                      labelBackground: Color(red: 0.25, green: 0.75, blue: 1.0),
+                                      lineColour: Color(red: 0.25, green: 0.75, blue: 1.0),
+                                      strokeStyle: StrokeStyle(lineWidth: 3, dash: [5,10]))
+                            .averageLine(chartData: data,
+                                         strokeStyle: StrokeStyle(lineWidth: 3, dash: [5,10]))
+                            .xAxisGrid(chartData: data)
+                            .yAxisGrid(chartData: data)
+                            .xAxisLabels(chartData: data)
+                            .yAxisLabels(chartData: data)
+                            .headerBox(chartData: data)
+                            .legends(chartData: data, columns: [GridItem(.flexible()), GridItem(.flexible())])
+                            .id(data.id)
+                            .frame(minWidth: 150, maxWidth: 900, minHeight: 150, idealHeight: 500, maxHeight: 600, alignment: .center)
+                            .padding(.horizontal)
+                    }
+                    //.navigationTitle("Filled Line")
+                    
+                    
+                // if not loading, show the symbol information
+//                    VStack {
+//
+//                        Text("\(symbolName)")
+//                            .font(.largeTitle)
+//                            .fontWeight(.bold)
+//                            .padding(.top, 20)
+//                        Text("$\(self.price) PER \(symbolNameAlone)")
+//                            .font(.largeTitle)
+//                            .fontWeight(.bold)
+//                            .padding(.top, 20)
+//                        Text("\(self.price_percentage_hour_change)% 24h")
+//                            .font(.largeTitle)
+//                            .fontWeight(.bold)
+//                            .padding(.top, 20)
+                    
+                        
+                        //https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@bea1a9722a8c63169dcc06e86182bf2c55a76bbc/32/color/btc.png
+//                        AsyncImage(url: URL(string:"https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@bea1a9722a8c63169dcc06e86182bf2c55a76bbc/32/color/\(symbolNameAlone.lowercased()).png"))
+                    //}
                 }
+                
             }
+            
         }
+        .navigationBarTitle("") // define navigation view title
+        .navigationTitle("") // TODO: cant remove the top title charles
         .refreshable {
             print("REFRESH GESTURE INVOKED")
             Task {
@@ -154,8 +263,9 @@ struct NavigationLinkView: View {
                 }
             }
         }
-        
+        .navigationTitle("")
     }
+    
 }
 
 // this view is invoked on when the user wants to view the market of all crypto currencies
@@ -223,6 +333,7 @@ struct MarketsView: View {
                         .buttonStyle(.borderedProminent)
                         //.padding()
                     }
+                    
                     // on open of the link do a htttp request to get the price of the crypto asset
                     //https://api.binance.com/api/v3/ticker/price?symbol=
 

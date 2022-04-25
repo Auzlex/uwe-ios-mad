@@ -44,6 +44,7 @@ struct ContentView: View {
                 NavigationView{
                     Text("IMPLEMENT_DASHBOARD_VIEW ")
                         .navigationBarTitle("Crypto Dashboard") // define navigation view title
+                    
                 }
                     //.badge(5)
                     .tag(0)
@@ -75,9 +76,12 @@ struct ContentView: View {
                                     }
                                 }
                             }
+                            //.navigationTitle("")
+                        
                     }
                         
                 }
+                    //.navigationTitle("")
                     //.onAppear(perform: viewModel.refresh)
                     .environmentObject(favorites)
                     .onAppear {
@@ -111,7 +115,7 @@ struct ContentView: View {
                 }
                 
         }
-        .preferredColorScheme(.dark)
+        //.preferredColorScheme(.dark)
     }
 }
 

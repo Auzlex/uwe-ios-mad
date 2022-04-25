@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C43274772816F3FA008E85B1 /* SwiftUICharts in Frameworks */ = {isa = PBXBuildFile; productRef = C43274762816F3FA008E85B1 /* SwiftUICharts */; };
 		C43D343627B67D3F00200556 /* Crypto_Currency_Price_CheckerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43D343527B67D3F00200556 /* Crypto_Currency_Price_CheckerApp.swift */; };
 		C43D343827B67D3F00200556 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43D343727B67D3F00200556 /* ContentView.swift */; };
 		C43D343A27B67D4300200556 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C43D343927B67D4300200556 /* Assets.xcassets */; };
@@ -59,6 +60,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C43274772816F3FA008E85B1 /* SwiftUICharts in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -155,6 +157,9 @@
 			dependencies = (
 			);
 			name = "Crypto Currency Price Checker";
+			packageProductDependencies = (
+				C43274762816F3FA008E85B1 /* SwiftUICharts */,
+			);
 			productName = "Crypto Currency Price Checker";
 			productReference = C43D343227B67D3F00200556 /* Crypto Currency Price Checker.app */;
 			productType = "com.apple.product-type.application";
@@ -227,6 +232,9 @@
 				Base,
 			);
 			mainGroup = C43D342927B67D3F00200556;
+			packageReferences = (
+				C43274752816F3FA008E85B1 /* XCRemoteSwiftPackageReference "SwiftUICharts" */,
+			);
 			productRefGroup = C43D343327B67D3F00200556 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -595,6 +603,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C43274752816F3FA008E85B1 /* XCRemoteSwiftPackageReference "SwiftUICharts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/willdale/SwiftUICharts.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C43274762816F3FA008E85B1 /* SwiftUICharts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C43274752816F3FA008E85B1 /* XCRemoteSwiftPackageReference "SwiftUICharts" */;
+			productName = SwiftUICharts;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C43D342A27B67D3F00200556 /* Project object */;
 }
