@@ -64,6 +64,7 @@ struct ContentView: View {
                     } else {
                         // load the markets view
                         MarketsView(viewModel: self.viewModel)
+                            
                             .refreshable {
                                 // this code is invoked on refresh gesture for this tab
                                 print("REFRESH SYMBOLS: isloading False")
@@ -83,7 +84,7 @@ struct ContentView: View {
                 }
                     //.navigationTitle("")
                     //.onAppear(perform: viewModel.refresh)
-                    .environmentObject(favorites)
+                    .environmentObject(favorites)  // this passes the environment object so we can determine what is favourited or not from the markets view
                     .onAppear {
                         // perform an asynchronous task that will perform fetching view model data
                         DispatchQueue.main.async {
@@ -102,13 +103,32 @@ struct ContentView: View {
                     FAVOURITES VIEW
                 */
             
-                NavigationView{
-                    Text("IMPLEMENT_FAVOURITES_VIEW")
-                    .navigationBarTitle("Favourite Crypto Assets")
-                    .searchable(text: $searchText)
+                NavigationView {
+                    
+                    if isLoading {
+                        LoadingView()
+                    } else {
+                        // load the markets view
+                        FavouritesView(viewModel: self.viewModel)
+
+                    }
+                
+                    
+//                    Text("IMPLEMENT_FAVOURITES_VIEW")
+//                    .navigationBarTitle("Favourite Crypto Assets")
+//                    .searchable(text: $searchText)
                     
                 }
-                .environmentObject(favorites)
+                .environmentObject(favorites) // passes the environment favourites to the
+                .onAppear {
+                    // perform an asynchronous task that will perform fetching view model data
+                    DispatchQueue.main.async {
+                        Task{
+                            await viewModel.refresh() // wait for it to fetch new data
+                            isLoading = false // once we have our data switch views
+                        }
+                    }
+                }
                 .tabItem {
                     Image(systemName: "bookmark.fill")
                     Text("Favourites")

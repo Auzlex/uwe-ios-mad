@@ -15,6 +15,9 @@
 		C43D344727B67D4300200556 /* Crypto_Currency_Price_CheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43D344627B67D4300200556 /* Crypto_Currency_Price_CheckerTests.swift */; };
 		C43D345127B67D4300200556 /* Crypto_Currency_Price_CheckerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43D345027B67D4300200556 /* Crypto_Currency_Price_CheckerUITests.swift */; };
 		C43D345327B67D4300200556 /* Crypto_Currency_Price_CheckerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43D345227B67D4300200556 /* Crypto_Currency_Price_CheckerUITestsLaunchTests.swift */; };
+		C448E01A281BFB33005D97A5 /* RefreshableScrollView in Frameworks */ = {isa = PBXBuildFile; productRef = C448E019281BFB33005D97A5 /* RefreshableScrollView */; };
+		C448E01C281BFF4B005D97A5 /* FavouritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C448E01B281BFF4B005D97A5 /* FavouritesView.swift */; };
+		C448E01E281C031D005D97A5 /* AssetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C448E01D281C031D005D97A5 /* AssetView.swift */; };
 		C4831FB727D277B8003C8079 /* CryptoInformationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4831FB627D277B8003C8079 /* CryptoInformationService.swift */; };
 		C4A4205927DB6F4F00B7FA2D /* CCPCViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4A4205827DB6F4F00B7FA2D /* CCPCViewModel.swift */; };
 		C4D320FC27FB39F400A1432E /* Favourites.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4D320FB27FB39F400A1432E /* Favourites.swift */; };
@@ -49,6 +52,8 @@
 		C43D344C27B67D4300200556 /* Crypto Currency Price CheckerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Crypto Currency Price CheckerUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C43D345027B67D4300200556 /* Crypto_Currency_Price_CheckerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Crypto_Currency_Price_CheckerUITests.swift; sourceTree = "<group>"; };
 		C43D345227B67D4300200556 /* Crypto_Currency_Price_CheckerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Crypto_Currency_Price_CheckerUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		C448E01B281BFF4B005D97A5 /* FavouritesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesView.swift; sourceTree = "<group>"; };
+		C448E01D281C031D005D97A5 /* AssetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetView.swift; sourceTree = "<group>"; };
 		C4831FB627D277B8003C8079 /* CryptoInformationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoInformationService.swift; sourceTree = "<group>"; };
 		C4A4205827DB6F4F00B7FA2D /* CCPCViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CCPCViewModel.swift; sourceTree = "<group>"; };
 		C4D320FB27FB39F400A1432E /* Favourites.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Favourites.swift; sourceTree = "<group>"; };
@@ -60,6 +65,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C448E01A281BFB33005D97A5 /* RefreshableScrollView in Frameworks */,
 				C43274772816F3FA008E85B1 /* SwiftUICharts in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -107,7 +113,9 @@
 				C43D343527B67D3F00200556 /* Crypto_Currency_Price_CheckerApp.swift */,
 				C4831FB627D277B8003C8079 /* CryptoInformationService.swift */,
 				C43D343727B67D3F00200556 /* ContentView.swift */,
+				C448E01B281BFF4B005D97A5 /* FavouritesView.swift */,
 				C4D320FD27FB3AF200A1432E /* MarketsView.swift */,
+				C448E01D281C031D005D97A5 /* AssetView.swift */,
 				C4D320FB27FB39F400A1432E /* Favourites.swift */,
 				C4A4205827DB6F4F00B7FA2D /* CCPCViewModel.swift */,
 				C43D343927B67D4300200556 /* Assets.xcassets */,
@@ -159,6 +167,7 @@
 			name = "Crypto Currency Price Checker";
 			packageProductDependencies = (
 				C43274762816F3FA008E85B1 /* SwiftUICharts */,
+				C448E019281BFB33005D97A5 /* RefreshableScrollView */,
 			);
 			productName = "Crypto Currency Price Checker";
 			productReference = C43D343227B67D3F00200556 /* Crypto Currency Price Checker.app */;
@@ -234,6 +243,7 @@
 			mainGroup = C43D342927B67D3F00200556;
 			packageReferences = (
 				C43274752816F3FA008E85B1 /* XCRemoteSwiftPackageReference "SwiftUICharts" */,
+				C448E018281BFB33005D97A5 /* XCRemoteSwiftPackageReference "RefreshableScrollView" */,
 			);
 			productRefGroup = C43D343327B67D3F00200556 /* Products */;
 			projectDirPath = "";
@@ -282,6 +292,8 @@
 				C4D320FE27FB3AF200A1432E /* MarketsView.swift in Sources */,
 				C43D343827B67D3F00200556 /* ContentView.swift in Sources */,
 				C43D343627B67D3F00200556 /* Crypto_Currency_Price_CheckerApp.swift in Sources */,
+				C448E01E281C031D005D97A5 /* AssetView.swift in Sources */,
+				C448E01C281BFF4B005D97A5 /* FavouritesView.swift in Sources */,
 				C4A4205927DB6F4F00B7FA2D /* CCPCViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -613,6 +625,14 @@
 				minimumVersion = 2.0.0;
 			};
 		};
+		C448E018281BFB33005D97A5 /* XCRemoteSwiftPackageReference "RefreshableScrollView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/TariqAlmazyad/RefreshableScrollView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -620,6 +640,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C43274752816F3FA008E85B1 /* XCRemoteSwiftPackageReference "SwiftUICharts" */;
 			productName = SwiftUICharts;
+		};
+		C448E019281BFB33005D97A5 /* RefreshableScrollView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C448E018281BFB33005D97A5 /* XCRemoteSwiftPackageReference "RefreshableScrollView" */;
+			productName = RefreshableScrollView;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "RefreshableScrollView",
+        "repositoryURL": "https://github.com/TariqAlmazyad/RefreshableScrollView.git",
+        "state": {
+          "branch": null,
+          "revision": "b4495b4dd3b2391b0d947e34700ed80e09ddbf67",
+          "version": "1.0.1"
+        }
+      },
+      {
         "package": "SwiftUICharts",
         "repositoryURL": "https://github.com/willdale/SwiftUICharts.git",
         "state": {
