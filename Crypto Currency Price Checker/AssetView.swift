@@ -22,6 +22,8 @@ struct AssetView: View {
     @State var priceChange: [Double] = [ 0, 0 ] // stores price change data
     @State var price_percentage_hour_change: Double = 0 // stores percentage of price change
 
+    //@State var data = [ChartPoint]() // stores data for chart
+
     @State var isLoading: Bool = true // async loading variable for this view
     
     static func weekOfData() -> LineChartData {
@@ -53,6 +55,7 @@ struct AssetView: View {
     
     @State var data : LineChartData = weekOfData()
 
+
     public func calculatePercentage( openPrice:Double, lastPrice:Double ) -> Double {
         return 0 + ( lastPrice - openPrice )/(openPrice)
     }
@@ -74,138 +77,149 @@ struct AssetView: View {
 
     var body: some View {
 
-                ScrollView {
-                    // if is loading, show loading view
-                    if isLoading {
-                        LoadingView()
+        ScrollView {
+            // if is loading, show loading view
+            if isLoading {
+                LoadingView()
+            }
+            else {
+                HStack{
+                    AsyncImage(url:URL(string:"https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@bea1a9722a8c63169dcc06e86182bf2c55a76bbc/128/color/\(symbolNameAlone.lowercased()).png")
+                    )
+                        .padding(.all, 5)
+                    VStack {
+                        Text("\(symbolName)")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            //.padding(.top, 20)
+                        Text("$\(self.price, specifier: "%.\(self.symbolPrecision)f") PER \(symbolNameAlone)")
+                            .font(.body)
+                            //.fontWeight(.bold)
+                            .padding(.top, 5)
+                        Text("24H CHANGE: \(self.price_percentage_hour_change)% 24h")
+                            .font(.body)
+                            //.fontWeight(.bold)
+                            .padding(.top, 5)
                     }
-                    else {
-                        HStack{
-                            AsyncImage(url:URL(string:"https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@bea1a9722a8c63169dcc06e86182bf2c55a76bbc/128/color/\(symbolNameAlone.lowercased()).png")
-                            )
-                                .padding(.all, 5)
-                            VStack {
-                                Text("\(symbolName)")
-                                    .font(.largeTitle)
-                                    .fontWeight(.bold)
-                                    //.padding(.top, 20)
-                                Text("$\(self.price, specifier: "%.\(self.symbolPrecision)f") PER \(symbolNameAlone)")
-                                    .font(.body)
-                                    //.fontWeight(.bold)
-                                    .padding(.top, 5)
-                                Text("24H CHANGE: \(self.price_percentage_hour_change)% 24h")
-                                    .font(.body)
-                                    //.fontWeight(.bold)
-                                    .padding(.top, 5)
-                            }
-                            .padding()
-                        }
-                        
-                        VStack {
-                            FilledLineChart(chartData: data)
-                                .filledTopLine(chartData: data,
-                                               lineColour: ColourStyle(colour: .red),
-                                               strokeStyle: StrokeStyle(lineWidth: 3))
-                                .touchOverlay(chartData: data, unit: .suffix(of: "Steps"))
-                                .pointMarkers(chartData: data)
-                                .yAxisPOI(chartData: data,
-                                          markerName: "Step Count Aim",
-                                          markerValue: 15_000,
-                                          labelPosition: .center(specifier: "%.0f"),
-                                          labelColour: Color.black,
-                                          labelBackground: Color(red: 1.0, green: 0.75, blue: 0.25),
-                                          lineColour: Color(red: 1.0, green: 0.75, blue: 0.25),
-                                          strokeStyle: StrokeStyle(lineWidth: 3, dash: [5,10]))
-                                .yAxisPOI(chartData: data,
-                                          markerName: "Minimum Recommended",
-                                          markerValue: 10_000,
-                                          labelPosition: .center(specifier: "%.0f"),
-                                          labelColour: Color.white,
-                                          labelBackground: Color(red: 0.25, green: 0.75, blue: 1.0),
-                                          lineColour: Color(red: 0.25, green: 0.75, blue: 1.0),
-                                          strokeStyle: StrokeStyle(lineWidth: 3, dash: [5,10]))
-                                .averageLine(chartData: data,
-                                             strokeStyle: StrokeStyle(lineWidth: 3, dash: [5,10]))
-                                .xAxisGrid(chartData: data)
-                                .yAxisGrid(chartData: data)
-                                .xAxisLabels(chartData: data)
-                                .yAxisLabels(chartData: data)
-                                .headerBox(chartData: data)
-                                .legends(chartData: data, columns: [GridItem(.flexible()), GridItem(.flexible())])
-                                .id(data.id)
-                                .frame(minWidth: 150, maxWidth: 900, minHeight: 150, idealHeight: 500, maxHeight: 600, alignment: .center)
-                                .padding(.horizontal)
-                        }
+                    .padding()
+                }
+                
+                VStack {
+                    FilledLineChart(chartData: data)
+                        .filledTopLine(chartData: data,
+                                       lineColour: ColourStyle(colour: .red),
+                                       strokeStyle: StrokeStyle(lineWidth: 3))
+                        .touchOverlay(chartData: data, unit: .suffix(of: "Steps"))
+                        .pointMarkers(chartData: data)
+                        .yAxisPOI(chartData: data,
+                                  markerName: "Step Count Aim",
+                                  markerValue: 15_000,
+                                  labelPosition: .center(specifier: "%.0f"),
+                                  labelColour: Color.black,
+                                  labelBackground: Color(red: 1.0, green: 0.75, blue: 0.25),
+                                  lineColour: Color(red: 1.0, green: 0.75, blue: 0.25),
+                                  strokeStyle: StrokeStyle(lineWidth: 3, dash: [5,10]))
+                        .yAxisPOI(chartData: data,
+                                  markerName: "Minimum Recommended",
+                                  markerValue: 10_000,
+                                  labelPosition: .center(specifier: "%.0f"),
+                                  labelColour: Color.white,
+                                  labelBackground: Color(red: 0.25, green: 0.75, blue: 1.0),
+                                  lineColour: Color(red: 0.25, green: 0.75, blue: 1.0),
+                                  strokeStyle: StrokeStyle(lineWidth: 3, dash: [5,10]))
+                        .averageLine(chartData: data,
+                                     strokeStyle: StrokeStyle(lineWidth: 3, dash: [5,10]))
+                        .xAxisGrid(chartData: data)
+                        .yAxisGrid(chartData: data)
+                        .xAxisLabels(chartData: data)
+                        .yAxisLabels(chartData: data)
+                        .headerBox(chartData: data)
+                        .legends(chartData: data, columns: [GridItem(.flexible()), GridItem(.flexible())])
+                        .id(data.id)
+                        .frame(minWidth: 150, maxWidth: 900, minHeight: 150, idealHeight: 500, maxHeight: 600, alignment: .center)
+                        .padding(.horizontal)
+                }
+            }
+        }
+        .refreshable {
+            print("REFRESH GESTURE INVOKED")
+            Task {
+                // WARNING: THIS DONE ON REFRESH
+                // WARNING: THIS DONE ON REFRESH
+                // WARNING: THIS DONE ON REFRESH
+                // WARNING: THIS DONE ON REFRESH
+                // WARNING: THIS DONE ON REFRESH
+                // we await price data
+                async let load1: () = await viewModel.fetchprice_for_symbol(symbolName: self.symbolName)
+                {
+                    fetched_price in DispatchQueue.main.async {
+                        self.price = fetched_price
                     }
                 }
-                .refreshable {
-                    print("REFRESH GESTURE INVOKED")
-                    Task {
-                        // WARNING: THIS DONE ON REFRESH
-                        // WARNING: THIS DONE ON REFRESH
-                        // WARNING: THIS DONE ON REFRESH
-                        // WARNING: THIS DONE ON REFRESH
-                        // WARNING: THIS DONE ON REFRESH
-                        // we await price data
-                        async let load1: () = await viewModel.fetchprice_for_symbol(symbolName: self.symbolName)
-                        {
-                            fetched_price in DispatchQueue.main.async {
-                                self.price = fetched_price
-                            }
-                        }
-        
-                        async let load2: () = await viewModel.fetch24price_change_for_symbol(symbolName: self.symbolName)
-                        {
-                            price_change in DispatchQueue.main.async {
-                                self.priceChange = price_change
-                                self.price_percentage_hour_change = ( self.priceChange[1] - self.priceChange[0] )/(self.priceChange[0])
-                            }
-                        }
-                        
-                        let pricedata: [()] = await [load1, load2]
-        
-                        isLoading = false
-        
-                        print("viewModel.fetchprice_for_symbol -> :", self.price)
-                        print("viewModel.fetchprice_for_symbol -> :", self.priceChange)
-                        print("price_percentage_hour_change -> :", self.price_percentage_hour_change)
-                        // WARNING: THIS DONE ON REFRESH
-                        // WARNING: THIS DONE ON REFRESH
-                        // WARNING: THIS DONE ON REFRESH
+
+                async let load2: () = await viewModel.fetch24price_change_for_symbol(symbolName: self.symbolName)
+                {
+                    price_change in DispatchQueue.main.async {
+                        self.priceChange = price_change
+                        self.price_percentage_hour_change = ( self.priceChange[1] - self.priceChange[0] )/(self.priceChange[0])
                     }
                 }
-                .onAppear{
-                    // dispatch for current price right now on appear of the scroll view
-                    DispatchQueue.main.async {
-                        Task {
-                            
-                            // we await price data
-                            async let load1: () = await viewModel.fetchprice_for_symbol(symbolName: self.symbolName)
-                            {
-                                fetched_price in DispatchQueue.main.async {
-                                    self.price = fetched_price
-                                }
-                            }
-        
-                            async let load2: () = await viewModel.fetch24price_change_for_symbol(symbolName: self.symbolName)
-                            {
-                                price_change in DispatchQueue.main.async {
-                                    self.priceChange = price_change
-                                    self.price_percentage_hour_change = ( self.priceChange[1] - self.priceChange[0] )/(self.priceChange[0])
-                                }
-                            }
-    
-                            let pricedata: [()] = await [load1, load2]
-        
-                            isLoading = false
-        
+                
+                let pricedata: [()] = await [load1, load2]
+
+                isLoading = false
+
+                print("viewModel.fetchprice_for_symbol -> :", self.price)
+                print("viewModel.fetchprice_for_symbol -> :", self.priceChange)
+                print("price_percentage_hour_change -> :", self.price_percentage_hour_change)
+                // WARNING: THIS DONE ON REFRESH
+                // WARNING: THIS DONE ON REFRESH
+                // WARNING: THIS DONE ON REFRESH
+            }
+        }
+        .onAppear{
+            // dispatch for current price right now on appear of the scroll view
+            DispatchQueue.main.async {
+                Task {
+                    
+                    // we await price data
+                    async let load1: () = await viewModel.fetchprice_for_symbol(symbolName: self.symbolName)
+                    {
+                        fetched_price in DispatchQueue.main.async {
+                            self.price = fetched_price
+                        }
+                    }
+
+                    async let load2: () = await viewModel.fetch24price_change_for_symbol(symbolName: self.symbolName)
+                    {
+                        price_change in DispatchQueue.main.async {
+                            self.priceChange = price_change
+                            self.price_percentage_hour_change = ( self.priceChange[1] - self.priceChange[0] )/(self.priceChange[0])
+                        }
+                    }
+
+                    async let load3: () = await viewModel.cryptoInformationService.get_historic_kline_data(symbolName: self.symbolName, interval: "1h", limit: "24")
+                    {
+                        historic_kline_data in DispatchQueue.main.async {
+                            print("historic_kline_data -> :", historic_kline_data)
+                            //self.data = historic_kline_data
+                            // self.data = historic_kline_data.map {
+                            //     ChartPoint(x: Double($0.timestamp), y: Double($0.close))
+                            // }
+                        }
+                    }
+
+                    let pricedata: [()] = await [load1, load2, load3]
+
+                    isLoading = false
+
 //                            print("viewModel.fetchprice_for_symbol -> :", self.price)
 //                            print("viewModel.fetchprice_for_symbol -> :", self.priceChange)
 //                            print("price_percentage_hour_change -> :", self.price_percentage_hour_change)
-                        }
-                    }
                 }
+            }
+        }
     } // end of view
     
 } // end of classimport SwiftUI
-import SwiftUICharts
+

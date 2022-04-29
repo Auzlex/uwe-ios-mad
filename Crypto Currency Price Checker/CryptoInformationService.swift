@@ -188,6 +188,26 @@ public final class CryptoInformationService: NSObject {
         task.resume()
         
     }
+
+    // get the historical kline data
+    public func get_historic_kline_data(symbolName: String, interval: String, limit: String, completion: @escaping (Double)->() ) async {
+
+        let url = URL(string: "https://api.binance.com/api/v3/klines?symbol=\(symbolName.uppercased())&interval=\(interval)&limit=\(limit)")!
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            guard let data = data else { return }
+            do {
+                let json = try JSONSerialization.jsonObject(with: data, options: [])
+                print(json)
+                
+                completion(0)
+
+            } catch {
+                print(error)
+            }
+        }
+        task.resume()
+
+    }
     
 }
 
