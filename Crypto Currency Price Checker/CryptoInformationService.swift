@@ -189,6 +189,13 @@ public final class CryptoInformationService: NSObject {
         
     }
 
+    func json(from object:Any) -> String? {
+        guard let data = try? JSONSerialization.data(withJSONObject: object, options: []) else {
+            return nil
+        }
+        return String(data: data, encoding: String.Encoding.utf8)
+    }
+
     // get the historical kline data
     public func get_historic_kline_data(symbolName: String, interval: String, limit: String, completion: @escaping (Double)->() ) async {
 
@@ -196,8 +203,22 @@ public final class CryptoInformationService: NSObject {
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             guard let data = data else { return }
             do {
-                let json = try JSONSerialization.jsonObject(with: data, options: [])
-                print(json)
+                let json_object = try JSONSerialization.jsonObject(with: data, options: [])
+
+                // return json as an array of strings
+                print(self.json(from:json_object))
+
+
+                // if let dictionary = json as? [String: Any] {
+
+                //     print("DICT: ", dictionary)
+                    
+                // }
+            
+
+                // for every item within the json print
+                
+
                 
                 completion(0)
 
