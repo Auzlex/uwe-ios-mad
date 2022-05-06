@@ -202,10 +202,35 @@ struct AssetView: View {
                     {
                         historic_kline_data in DispatchQueue.main.async {
                             print("historic_kline_data -> :", historic_kline_data)
-                            //self.data = historic_kline_data
-                            // self.data = historic_kline_data.map {
-                            //     ChartPoint(x: Double($0.timestamp), y: Double($0.close))
-                            // }
+                            
+                            // with historic_kline_data generate LineDataSet close
+                            let close = historic_kline_data.map { $0.close }
+
+                            let data_points = [LineChartDataPoint]
+                            for kline_data in historic_kline_data {
+                                print("kline_data -> :", kline_data)
+
+                                data_points.append(LineChartDataPoint(value: kline_data.close, xAxisLabel: "M", description: "Close Price"))
+                            }
+                            
+                            // // with close generate LineDataSet
+                            // let data = LineDataSet(close, label: "Close")
+
+                            // let data = LineDataSet(dataPoints: [
+                            //     LineChartDataPoint(value: 12000, xAxisLabel: "M", description: "Monday"),
+                            //     LineChartDataPoint(value: 13000, xAxisLabel: "T", description: "Tuesday"),
+                            //     LineChartDataPoint(value: 8000,  xAxisLabel: "W", description: "Wednesday"),
+                            //     LineChartDataPoint(value: 17500, xAxisLabel: "T", description: "Thursday"),
+                            //     LineChartDataPoint(value: 16000, xAxisLabel: "F", description: "Friday"),
+                            //     LineChartDataPoint(value: 11000, xAxisLabel: "S", description: "Saturday"),
+                            //     LineChartDataPoint(value: 9000,  xAxisLabel: "S", description: "Sunday")
+                            // ]
+
+                            
+                            // //self.data = historic_kline_data
+                            // // self.data = historic_kline_data.map {
+                            // //     ChartPoint(x: Double($0.timestamp), y: Double($0.close))
+                            // // }
                         }
                     }
 
