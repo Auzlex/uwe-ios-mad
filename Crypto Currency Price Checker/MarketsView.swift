@@ -73,6 +73,7 @@ struct MarketsView: View {
                                 favorites.add(symbol)
                             }
                         }
+                        .foregroundColor(Color("TextColorInvert"))
                         .buttonStyle(.borderedProminent)
                         //.padding()
                     }

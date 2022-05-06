@@ -68,6 +68,7 @@ struct FavouritesView: View {
                                     favorites.add(symbol)
                                 }
                             }
+                            .foregroundColor(Color("TextColorInvert"))
                             .buttonStyle(.borderedProminent)
                             //.padding()
                         }

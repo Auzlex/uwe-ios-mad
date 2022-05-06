@@ -123,16 +123,21 @@ struct ContentView: View {
         
         UINavigationBar.appearance().barTintColor = UIColor.systemBackground
         UINavigationBar.appearance().backgroundColor = UIColor.systemBackground
+        
+        
         UITabBar.appearance().barTintColor = UIColor.systemBackground
         
         //UITabBar.appearance().tintColor = UIColor.gray
         
-//        UITabBarItem.appearance()
-//            //.seleted.iconColor = .white
-//            .setTitleTextAttributes(
-//                [.font : UIFont.systemFont(ofSize: 15, weight: .medium)],
-//            for: .normal)
-//            //.set
+        UITabBarItem.appearance()
+            //.seleted.iconColor = .white
+            
+            .setTitleTextAttributes(
+                [.font : UIFont.systemFont(ofSize: 15, weight: .regular)],
+            for: .normal)
+            //.set
+        
+        //UITabBarItem.appearance().
     }
     
     var body: some View {
@@ -157,8 +162,10 @@ struct ContentView: View {
                 .tabItem {
                     //Image(systemName: "house.fill").font(.system(size: 26))
                     Text("Dashboard")
+                        .textCase(.uppercase)
                 }
-                .accentColor(.black)
+                .accentColor(Color("TextColor"))
+
                 
             
                 /*
@@ -206,8 +213,10 @@ struct ContentView: View {
                 .tabItem {
                     //Image(systemName: "chart.bar")
                     Text("Markets")
+                        .textCase(.uppercase)
                 }
-                .accentColor(.black)
+                .accentColor(Color("TextColor"))
+
             
                 /*
                     FAVOURITES VIEW
@@ -243,8 +252,9 @@ struct ContentView: View {
                 .tabItem {
                     //Image(systemName: "bookmark.fill")
                     Text("Favourites")
+                        .textCase(.uppercase)
                 }
-                .accentColor(.black)
+                .accentColor(Color("TextColor"))
                 
         }
         

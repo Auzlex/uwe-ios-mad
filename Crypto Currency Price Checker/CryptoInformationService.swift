@@ -143,7 +143,7 @@ public final class CryptoInformationService: NSObject {
             guard let data = data else { return }
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: [])
-                print(json)
+                //print(json)
 
                 // create an empty double var
                 var openPrice: Double = -1
@@ -196,31 +196,54 @@ public final class CryptoInformationService: NSObject {
         return String(data: data, encoding: String.Encoding.utf8)
     }
 
+    //https://stackoverflow.com/questions/49147475/decoding-a-json-without-keys-in-swift-4 THANK YOU SO MUCH
+    struct Kline_data: Codable {
+        var open_time:Int
+        var open:String
+        var high:String
+        var low:String
+        var close:String
+        var volume:String
+        var close_time: Int
+        var quote_asset_volume:String
+        var number_of_trades:Int
+        var taker_buy_base_asset_volume:String
+        var taker_buy_quote_asset_volume:String
+        var ignore:String
+        
+        init(from decoder: Decoder) throws {
+            var container = try decoder.unkeyedContainer()
+            open_time = try container.decode(Int.self)
+            open = try container.decode(String.self)
+            high = try container.decode(String.self)
+            low = try container.decode(String.self)
+            close = try container.decode(String.self)
+            volume = try container.decode(String.self)
+            close_time = try container.decode(Int.self)
+            quote_asset_volume = try container.decode(String.self)
+            number_of_trades = try container.decode(Int.self)
+            taker_buy_base_asset_volume = try container.decode(String.self)
+            taker_buy_quote_asset_volume = try container.decode(String.self)
+            ignore = try container.decode(String.self)
+        }
+    }
+    
     // get the historical kline data
-    public func get_historic_kline_data(symbolName: String, interval: String, limit: String, completion: @escaping (Double)->() ) async {
+    public func get_historic_kline_data(symbolName: String, interval: String, limit: String, completion: @escaping ([Kline_data])->() ) async {
 
         let url = URL(string: "https://api.binance.com/api/v3/klines?symbol=\(symbolName.uppercased())&interval=\(interval)&limit=\(limit)")!
+        print(url)
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             guard let data = data else { return }
             do {
-                let json_object = try JSONSerialization.jsonObject(with: data, options: [])
-
-                // return json as an array of strings
-                print(self.json(from:json_object))
-
-
-                // if let dictionary = json as? [String: Any] {
-
-                //     print("DICT: ", dictionary)
-                    
-                // }
-            
-
-                // for every item within the json print
+                
+                let k_data = try JSONDecoder()
+                    .decode([Kline_data].self, from: data)
+                    //.elements
+                //print("K_DATA: ",k_data.first)
                 
 
-                
-                completion(0)
+                completion(k_data)
 
             } catch {
                 print(error)
