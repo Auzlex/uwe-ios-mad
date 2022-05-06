@@ -227,9 +227,25 @@ public final class CryptoInformationService: NSObject {
             ignore = try container.decode(String.self)
         }
     }
+
+    public struct Kline_data_simple: Codable {
+        var open_time:Int
+        var open:String
+        var high:String
+        var low:String
+        var close:String
+        var volume:String
+        var close_time: Int
+        var quote_asset_volume:String
+        var number_of_trades:Int
+        var taker_buy_base_asset_volume:String
+        var taker_buy_quote_asset_volume:String
+        var ignore:String
+        
+    }
     
     // get the historical kline data
-    public func get_historic_kline_data(symbolName: String, interval: String, limit: String, completion: @escaping ([Kline_data])->() ) async {
+    public func get_historic_kline_data(symbolName: String, interval: String, limit: String, completion: @escaping ([Kline_data_simple])->() ) async {
 
         let url = URL(string: "https://api.binance.com/api/v3/klines?symbol=\(symbolName.uppercased())&interval=\(interval)&limit=\(limit)")!
         print(url)
@@ -239,11 +255,21 @@ public final class CryptoInformationService: NSObject {
                 
                 let k_data = try JSONDecoder()
                     .decode([Kline_data].self, from: data)
-                    //.elements
+
+                // convert k_data into Kline_data_simple
+                var k_data_simple = [Kline_data_simple]()
+                for k in k_data {
+                    k_data_simple.append(Kline_data_simple(open_time: k.open_time, open: k.open, high: k.high, low: k.low, close: k.close, volume: k.volume, close_time: k.close_time, quote_asset_volume: k.quote_asset_volume, number_of_trades: k.number_of_trades, taker_buy_base_asset_volume: k.taker_buy_base_asset_volume, taker_buy_quote_asset_volume: k.taker_buy_quote_asset_volume, ignore: k.ignore))
+                }
+
+                completion(k_data_simple)
+
+
+                    //.elementss
                 //print("K_DATA: ",k_data.first)
                 
 
-                completion(k_data)
+                //completion(k_data)
 
             } catch {
                 print(error)
