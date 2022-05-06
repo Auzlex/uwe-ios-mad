@@ -21,6 +21,12 @@ struct AssetView: View {
     @State var price: Double = 0 // stores price of currency
     @State var priceChange: [Double] = [ 0, 0 ] // stores price change data
     @State var price_percentage_hour_change: Double = 0 // stores percentage of price change
+    
+    @State var interval: String = "1w" // interval
+    @State var limit: String = "14" // interval
+    
+    @State var highest: Double = 0.0
+    @State var lowest: Double = 0.0
 
     //@State var data = [ChartPoint]() // stores data for chart
 
@@ -45,12 +51,12 @@ struct AssetView: View {
                          lineType: .line))
         
         return LineChartData(dataSets: data,
-                             metadata: ChartMetadata(title: "Some Data", subtitle: "A Week"),
-                             xAxisLabels: ["Monday", "Thursday", "Sunday"],
+                             metadata: ChartMetadata(title: "1H Price Change", subtitle: "24 Hour Price History"),
+                             //xAxisLabels: ["Monday", "Thursday", "Sunday"],
                              chartStyle: LineChartStyle(infoBoxPlacement: .header,
                                                         markerType: .full(attachment: .point),
-                                                        xAxisLabelsFrom: .chartData(rotation: .degrees(0)),
-                                                        baseline: .minimumWithMaximum(of: 5000)))
+                                                        //xAxisLabelsFrom: .chartData(rotation: .degrees(0)),
+                                                        baseline: .minimumWithMaximum(of: 0))) // 5000
     }
     
     @State var data : LineChartData = weekOfData()
@@ -112,17 +118,17 @@ struct AssetView: View {
                         .touchOverlay(chartData: data, unit: .suffix(of: "Steps"))
                         .pointMarkers(chartData: data)
                         .yAxisPOI(chartData: data,
-                                  markerName: "Step Count Aim",
-                                  markerValue: 15_000,
-                                  labelPosition: .center(specifier: "%.0f"),
+                                  markerName: "Highest Close Price",
+                                  markerValue: highest,
+                                  labelPosition: .center(specifier: "%.000f"),
                                   labelColour: Color.black,
                                   labelBackground: Color(red: 1.0, green: 0.75, blue: 0.25),
                                   lineColour: Color(red: 1.0, green: 0.75, blue: 0.25),
                                   strokeStyle: StrokeStyle(lineWidth: 3, dash: [5,10]))
                         .yAxisPOI(chartData: data,
-                                  markerName: "Minimum Recommended",
-                                  markerValue: 10_000,
-                                  labelPosition: .center(specifier: "%.0f"),
+                                  markerName: "Lowest Close Price",
+                                  markerValue: lowest,
+                                  labelPosition: .center(specifier: "%.000f"),
                                   labelColour: Color.white,
                                   labelBackground: Color(red: 0.25, green: 0.75, blue: 1.0),
                                   lineColour: Color(red: 0.25, green: 0.75, blue: 1.0),
@@ -136,7 +142,7 @@ struct AssetView: View {
                         .headerBox(chartData: data)
                         .legends(chartData: data, columns: [GridItem(.flexible()), GridItem(.flexible())])
                         .id(data.id)
-                        .frame(minWidth: 150, maxWidth: 900, minHeight: 150, idealHeight: 500, maxHeight: 600, alignment: .center)
+                        .frame(minWidth: 150, maxWidth: 900, minHeight: 150, idealHeight: 400, maxHeight: 500, alignment: .center)
                         .padding(.horizontal)
                 }
             }
@@ -198,20 +204,57 @@ struct AssetView: View {
                         }
                     }
 
-                    async let load3: () = await viewModel.cryptoInformationService.get_historic_kline_data(symbolName: self.symbolName, interval: "1h", limit: "24")
+                    async let load3: () = await viewModel.cryptoInformationService.get_historic_kline_data(symbolName: self.symbolName, interval: interval, limit: limit)
                     {
                         historic_kline_data in DispatchQueue.main.async {
                             print("historic_kline_data -> :", historic_kline_data)
                             
                             // with historic_kline_data generate LineDataSet close
-                            let close = historic_kline_data.map { $0.close }
+                            //let close = historic_kline_data.map { $0.close }
 
-                            let data_points = [LineChartDataPoint]
+                            var data_points = [LineChartDataPoint]()
+                            var i = 0;
+                            var highest = 0.0;
+                            var lowest = Double.greatestFiniteMagnitude;
                             for kline_data in historic_kline_data {
+                                i = i + 1;
                                 print("kline_data -> :", kline_data)
-
-                                data_points.append(LineChartDataPoint(value: kline_data.close, xAxisLabel: "M", description: "Close Price"))
+                                
+                                if (Double(kline_data.close)! > highest) {
+                                    highest = Double(kline_data.close)!
+                                }
+                                
+                                if (Double(kline_data.close)! < lowest) {
+                                    lowest = Double(kline_data.close)!
+                                }
+                                
+                                data_points.append(LineChartDataPoint(value: Double(kline_data.close)!, xAxisLabel: "\(i)", description: "Close Price"))
                             }
+                            
+                            self.highest = highest
+                            self.lowest = lowest
+                            
+                            @MainActor func kline_data() -> LineChartData {
+                                let data = LineDataSet(dataPoints: data_points,
+                                legendTitle: "Close Price",
+                                pointStyle: PointStyle(),
+                                style: LineStyle(lineColour: ColourStyle(colours: [Color.red.opacity(0.50),
+                                                                                   Color.red.opacity(0.00)],
+                                                                         startPoint: .top,
+                                                                         endPoint: .bottom),
+                                                 lineType: .line))
+                                
+                                return LineChartData(dataSets: data,
+                                                     metadata: ChartMetadata(title: "\(interval) Chart".uppercased(), subtitle: "Price History".uppercased()),
+                                                     //xAxisLabels: ["Monday", "Thursday", "Sunday"],
+                                                     chartStyle: LineChartStyle(infoBoxPlacement: .header,
+                                                                                markerType: .full(attachment: .point),
+                                                                                //xAxisLabelsFrom: .chartData(rotation: .degrees(0)),
+                                                                                baseline: .minimumWithMaximum(of: lowest*0.95))) // 5000
+                            }
+                            
+                            data = kline_data()
+                            
                             
                             // // with close generate LineDataSet
                             // let data = LineDataSet(close, label: "Close")
