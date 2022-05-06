@@ -22,6 +22,7 @@
 		C4A4205927DB6F4F00B7FA2D /* CCPCViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4A4205827DB6F4F00B7FA2D /* CCPCViewModel.swift */; };
 		C4D320FC27FB39F400A1432E /* Favourites.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4D320FB27FB39F400A1432E /* Favourites.swift */; };
 		C4D320FE27FB3AF200A1432E /* MarketsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4D320FD27FB3AF200A1432E /* MarketsView.swift */; };
+		C4D673BE28253752002A6B54 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4D673BD28253752002A6B54 /* DashboardView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,6 +59,7 @@
 		C4A4205827DB6F4F00B7FA2D /* CCPCViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CCPCViewModel.swift; sourceTree = "<group>"; };
 		C4D320FB27FB39F400A1432E /* Favourites.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Favourites.swift; sourceTree = "<group>"; };
 		C4D320FD27FB3AF200A1432E /* MarketsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsView.swift; sourceTree = "<group>"; };
+		C4D673BD28253752002A6B54 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +115,7 @@
 				C43D343527B67D3F00200556 /* Crypto_Currency_Price_CheckerApp.swift */,
 				C4831FB627D277B8003C8079 /* CryptoInformationService.swift */,
 				C43D343727B67D3F00200556 /* ContentView.swift */,
+				C4D673BD28253752002A6B54 /* DashboardView.swift */,
 				C448E01B281BFF4B005D97A5 /* FavouritesView.swift */,
 				C4D320FD27FB3AF200A1432E /* MarketsView.swift */,
 				C448E01D281C031D005D97A5 /* AssetView.swift */,
@@ -291,6 +294,7 @@
 				C4D320FC27FB39F400A1432E /* Favourites.swift in Sources */,
 				C4D320FE27FB3AF200A1432E /* MarketsView.swift in Sources */,
 				C43D343827B67D3F00200556 /* ContentView.swift in Sources */,
+				C4D673BE28253752002A6B54 /* DashboardView.swift in Sources */,
 				C43D343627B67D3F00200556 /* Crypto_Currency_Price_CheckerApp.swift in Sources */,
 				C448E01E281C031D005D97A5 /* AssetView.swift in Sources */,
 				C448E01C281BFF4B005D97A5 /* FavouritesView.swift in Sources */,
