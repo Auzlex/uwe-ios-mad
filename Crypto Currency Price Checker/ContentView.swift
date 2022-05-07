@@ -160,7 +160,7 @@ struct ContentView: View {
                 .environmentObject(favorites)  // this passes the environment object so we can determine what is favourited or not
                 .tag(1)
                 .tabItem {
-                    //Image(systemName: "house.fill").font(.system(size: 26))
+                    Image(systemName: "house.fill").font(.system(size: 26))
                     Text("Dashboard")
                         .textCase(.uppercase)
                 }
@@ -211,7 +211,7 @@ struct ContentView: View {
                 }
                 .tag(2)
                 .tabItem {
-                    //Image(systemName: "chart.bar")
+                    Image(systemName: "chart.bar")
                     Text("Markets")
                         .textCase(.uppercase)
                 }
@@ -250,7 +250,7 @@ struct ContentView: View {
                 }
                 .tag(3)
                 .tabItem {
-                    //Image(systemName: "bookmark.fill")
+                    Image(systemName: "bookmark.fill")
                     Text("Favourites")
                         .textCase(.uppercase)
                 }

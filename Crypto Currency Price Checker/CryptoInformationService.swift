@@ -26,6 +26,8 @@
 
 import Foundation
 import CoreFoundation
+import SwiftUICharts
+import SwiftUI
 
 struct APIResponse: Decodable {
     let timezone: String
@@ -245,10 +247,10 @@ public final class CryptoInformationService: NSObject {
     }
     
     // get the historical kline data
-    public func get_historic_kline_data(symbolName: String, interval: String, limit: String, completion: @escaping ([Kline_data_simple])->() ) async {
+    public func get_historic_kline_data(symbolName: String, interval: String, limit: String, completion: @escaping (LineChartData)->() ) async {
 
         let url = URL(string: "https://api.binance.com/api/v3/klines?symbol=\(symbolName.uppercased())&interval=\(interval)&limit=\(limit)")!
-        print(url)
+//        print(url)
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             guard let data = data else { return }
             do {
@@ -256,13 +258,53 @@ public final class CryptoInformationService: NSObject {
                 let k_data = try JSONDecoder()
                     .decode([Kline_data].self, from: data)
 
-                // convert k_data into Kline_data_simple
-                var k_data_simple = [Kline_data_simple]()
-                for k in k_data {
-                    k_data_simple.append(Kline_data_simple(open_time: k.open_time, open: k.open, high: k.high, low: k.low, close: k.close, volume: k.volume, close_time: k.close_time, quote_asset_volume: k.quote_asset_volume, number_of_trades: k.number_of_trades, taker_buy_base_asset_volume: k.taker_buy_base_asset_volume, taker_buy_quote_asset_volume: k.taker_buy_quote_asset_volume, ignore: k.ignore))
-                }
+//                // convert k_data into Kline_data_simple
+//                var k_data_simple = [Kline_data_simple]()
+//                for k in k_data {
+//                    k_data_simple.append(Kline_data_simple(open_time: k.open_time, open: k.open, high: k.high, low: k.low, close: k.close, volume: k.volume, close_time: k.close_time, quote_asset_volume: k.quote_asset_volume, number_of_trades: k.number_of_trades, taker_buy_base_asset_volume: k.taker_buy_base_asset_volume, taker_buy_quote_asset_volume: k.taker_buy_quote_asset_volume, ignore: k.ignore))
+//                }
 
-                completion(k_data_simple)
+                var data_points = [LineChartDataPoint]()
+                var i = 0;
+                var highest = 0.0;
+                var lowest = Double.greatestFiniteMagnitude;
+                for kline_data in k_data {
+                    i = i + 1;
+//                    print("kline_data -> :", kline_data)
+                    
+                    if (Double(kline_data.close)! > highest) {
+                        highest = Double(kline_data.close)!
+                    }
+                    
+                    if (Double(kline_data.close)! < lowest) {
+                        lowest = Double(kline_data.close)!
+                    }
+                    
+                    data_points.append(LineChartDataPoint(value: Double(kline_data.close)!, xAxisLabel: "\(i)", description: "Close Price"))
+                }
+            
+                
+                func kline_data() -> LineChartData {
+                    let data = LineDataSet(dataPoints: data_points,
+                    legendTitle: "Close Price",
+                    pointStyle: PointStyle(),
+                    style: LineStyle(lineColour: ColourStyle(colours: [Color.red.opacity(0.50),
+                                                                       Color.red.opacity(0.00)],
+                                                             startPoint: .top,
+                                                             endPoint: .bottom),
+                                     lineType: .line))
+                    
+                    return LineChartData(dataSets: data,
+                                         metadata: ChartMetadata(title: "\(interval) Chart".uppercased(), subtitle: "Price History".uppercased()),
+                                         //xAxisLabels: ["Monday", "Thursday", "Sunday"],
+                                         chartStyle: LineChartStyle(infoBoxPlacement: .header,
+                                                                    markerType: .full(attachment: .point),
+                                                                    //xAxisLabelsFrom: .chartData(rotation: .degrees(0)),
+                                                                    baseline: .minimumWithMaximum(of: lowest*0.95))) // 5000
+                }
+                
+
+                completion(kline_data())
 
 
                     //.elementss

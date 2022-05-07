@@ -147,42 +147,55 @@ struct AssetView: View {
                 }
             }
         }
-        .refreshable {
-            print("REFRESH GESTURE INVOKED")
-            Task {
-                // WARNING: THIS DONE ON REFRESH
-                // WARNING: THIS DONE ON REFRESH
-                // WARNING: THIS DONE ON REFRESH
-                // WARNING: THIS DONE ON REFRESH
-                // WARNING: THIS DONE ON REFRESH
-                // we await price data
-                async let load1: () = await viewModel.fetchprice_for_symbol(symbolName: self.symbolName)
-                {
-                    fetched_price in DispatchQueue.main.async {
-                        self.price = fetched_price
-                    }
-                }
-
-                async let load2: () = await viewModel.fetch24price_change_for_symbol(symbolName: self.symbolName)
-                {
-                    price_change in DispatchQueue.main.async {
-                        self.priceChange = price_change
-                        self.price_percentage_hour_change = ( self.priceChange[1] - self.priceChange[0] )/(self.priceChange[0])
-                    }
-                }
-                
-                let pricedata: [()] = await [load1, load2]
-
-                isLoading = false
-
-                print("viewModel.fetchprice_for_symbol -> :", self.price)
-                print("viewModel.fetchprice_for_symbol -> :", self.priceChange)
-                print("price_percentage_hour_change -> :", self.price_percentage_hour_change)
-                // WARNING: THIS DONE ON REFRESH
-                // WARNING: THIS DONE ON REFRESH
-                // WARNING: THIS DONE ON REFRESH
-            }
-        }
+//        .refreshable {
+//            print("REFRESH GESTURE INVOKED")
+//            Task {
+//                // WARNING: THIS DONE ON REFRESH
+//                // WARNING: THIS DONE ON REFRESH
+//                // WARNING: THIS DONE ON REFRESH
+//                // WARNING: THIS DONE ON REFRESH
+//                // WARNING: THIS DONE ON REFRESH
+//                // we await price data
+//                async let load1: () = await viewModel.fetchprice_for_symbol(symbolName: self.symbolName)
+//                {
+//                    fetched_price in DispatchQueue.main.async {
+//                        self.price = fetched_price
+//                    }
+//                }
+//
+//                async let load2: () = await viewModel.fetch24price_change_for_symbol(symbolName: self.symbolName)
+//                {
+//                    price_change in DispatchQueue.main.async {
+//                        self.priceChange = price_change
+//                        self.price_percentage_hour_change = ( self.priceChange[1] - self.priceChange[0] )/(self.priceChange[0])
+//                    }
+//                }
+//                
+//                async let load3: () = await viewModel.cryptoInformationService.get_historic_kline_data(symbolName: self.symbolName, interval: interval, limit: limit)
+//                {
+//                    historic_kline_data in DispatchQueue.main.async {
+//                        print("historic_kline_data -> :", historic_kline_data)
+//                        
+//                        // with historic_kline_data generate LineDataSet close
+//                        //let close = historic_kline_data.map { $0.close }
+//
+//                        data = historic_kline_data
+//
+//                    }
+//                }
+//                
+//                let pricedata: [()] = await [load1, load2, load3]
+//
+//                isLoading = false
+//
+//                print("viewModel.fetchprice_for_symbol -> :", self.price)
+//                print("viewModel.fetchprice_for_symbol -> :", self.priceChange)
+//                print("price_percentage_hour_change -> :", self.price_percentage_hour_change)
+//                // WARNING: THIS DONE ON REFRESH
+//                // WARNING: THIS DONE ON REFRESH
+//                // WARNING: THIS DONE ON REFRESH
+//            }
+//        }
         .onAppear{
             // dispatch for current price right now on appear of the scroll view
             DispatchQueue.main.async {
@@ -212,80 +225,27 @@ struct AssetView: View {
                             // with historic_kline_data generate LineDataSet close
                             //let close = historic_kline_data.map { $0.close }
 
-                            var data_points = [LineChartDataPoint]()
-                            var i = 0;
-                            var highest = 0.0;
-                            var lowest = Double.greatestFiniteMagnitude;
-                            for kline_data in historic_kline_data {
-                                i = i + 1;
-                                print("kline_data -> :", kline_data)
-                                
-                                if (Double(kline_data.close)! > highest) {
-                                    highest = Double(kline_data.close)!
-                                }
-                                
-                                if (Double(kline_data.close)! < lowest) {
-                                    lowest = Double(kline_data.close)!
-                                }
-                                
-                                data_points.append(LineChartDataPoint(value: Double(kline_data.close)!, xAxisLabel: "\(i)", description: "Close Price"))
-                            }
-                            
-                            self.highest = highest
-                            self.lowest = lowest
-                            
-                            @MainActor func kline_data() -> LineChartData {
-                                let data = LineDataSet(dataPoints: data_points,
-                                legendTitle: "Close Price",
-                                pointStyle: PointStyle(),
-                                style: LineStyle(lineColour: ColourStyle(colours: [Color.red.opacity(0.50),
-                                                                                   Color.red.opacity(0.00)],
-                                                                         startPoint: .top,
-                                                                         endPoint: .bottom),
-                                                 lineType: .line))
-                                
-                                return LineChartData(dataSets: data,
-                                                     metadata: ChartMetadata(title: "\(interval) Chart".uppercased(), subtitle: "Price History".uppercased()),
-                                                     //xAxisLabels: ["Monday", "Thursday", "Sunday"],
-                                                     chartStyle: LineChartStyle(infoBoxPlacement: .header,
-                                                                                markerType: .full(attachment: .point),
-                                                                                //xAxisLabelsFrom: .chartData(rotation: .degrees(0)),
-                                                                                baseline: .minimumWithMaximum(of: lowest*0.95))) // 5000
-                            }
-                            
-                            data = kline_data()
-                            
-                            
-                            // // with close generate LineDataSet
-                            // let data = LineDataSet(close, label: "Close")
-
-                            // let data = LineDataSet(dataPoints: [
-                            //     LineChartDataPoint(value: 12000, xAxisLabel: "M", description: "Monday"),
-                            //     LineChartDataPoint(value: 13000, xAxisLabel: "T", description: "Tuesday"),
-                            //     LineChartDataPoint(value: 8000,  xAxisLabel: "W", description: "Wednesday"),
-                            //     LineChartDataPoint(value: 17500, xAxisLabel: "T", description: "Thursday"),
-                            //     LineChartDataPoint(value: 16000, xAxisLabel: "F", description: "Friday"),
-                            //     LineChartDataPoint(value: 11000, xAxisLabel: "S", description: "Saturday"),
-                            //     LineChartDataPoint(value: 9000,  xAxisLabel: "S", description: "Sunday")
-                            // ]
-
-                            
-                            // //self.data = historic_kline_data
-                            // // self.data = historic_kline_data.map {
-                            // //     ChartPoint(x: Double($0.timestamp), y: Double($0.close))
-                            // // }
+                            data = historic_kline_data
+  
                         }
                     }
 
-                    let pricedata: [()] = await [load1, load2, load3]
+                    let _: [()] = await [load1, load2, load3]
 
                     isLoading = false
+                    
+                    print("Loaded??")
 
 //                            print("viewModel.fetchprice_for_symbol -> :", self.price)
 //                            print("viewModel.fetchprice_for_symbol -> :", self.priceChange)
 //                            print("price_percentage_hour_change -> :", self.price_percentage_hour_change)
                 }
             }
+        }
+        .onDisappear {
+            
+            isLoading = false;
+            
         }
     } // end of view
     
