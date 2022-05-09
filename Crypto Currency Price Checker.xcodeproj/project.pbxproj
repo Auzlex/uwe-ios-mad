@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C426E73828294C080078D48E /* MarqueeViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C426E73728294C080078D48E /* MarqueeViewModifier.swift */; };
 		C43274772816F3FA008E85B1 /* SwiftUICharts in Frameworks */ = {isa = PBXBuildFile; productRef = C43274762816F3FA008E85B1 /* SwiftUICharts */; };
 		C43D343627B67D3F00200556 /* Crypto_Currency_Price_CheckerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43D343527B67D3F00200556 /* Crypto_Currency_Price_CheckerApp.swift */; };
 		C43D343827B67D3F00200556 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43D343727B67D3F00200556 /* ContentView.swift */; };
@@ -43,6 +44,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C426E73728294C080078D48E /* MarqueeViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarqueeViewModifier.swift; sourceTree = "<group>"; };
 		C43D343227B67D3F00200556 /* Crypto Currency Price Checker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Crypto Currency Price Checker.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C43D343527B67D3F00200556 /* Crypto_Currency_Price_CheckerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Crypto_Currency_Price_CheckerApp.swift; sourceTree = "<group>"; };
 		C43D343727B67D3F00200556 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -116,6 +118,7 @@
 				C4831FB627D277B8003C8079 /* CryptoInformationService.swift */,
 				C43D343727B67D3F00200556 /* ContentView.swift */,
 				C4D673BD28253752002A6B54 /* DashboardView.swift */,
+				C426E73728294C080078D48E /* MarqueeViewModifier.swift */,
 				C448E01B281BFF4B005D97A5 /* FavouritesView.swift */,
 				C4D320FD27FB3AF200A1432E /* MarketsView.swift */,
 				C448E01D281C031D005D97A5 /* AssetView.swift */,
@@ -290,6 +293,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C426E73828294C080078D48E /* MarqueeViewModifier.swift in Sources */,
 				C4831FB727D277B8003C8079 /* CryptoInformationService.swift in Sources */,
 				C4D320FC27FB39F400A1432E /* Favourites.swift in Sources */,
 				C4D320FE27FB3AF200A1432E /* MarketsView.swift in Sources */,

@@ -151,13 +151,37 @@ struct ContentView: View {
                 */
                 // create a navigation view
                 NavigationView {
-//                    Text("IMPLEMENT_DASHBOARD_VIEW ")
-//                        .navigationBarTitle("Crypto Dashboard") // define navigation view title
-                    
-                    DashboardView(viewModel: self.viewModel)
-                    
+
+                    // because we are going to need to grab some asset information on load of the dashboard
+                    if isLoading {
+                        LoadingView()
+                    }
+                    else {
+                        DashboardView(viewModel: self.viewModel)
+                            .refreshable {
+                                // this code is invoked on refresh gesture for this tab
+                                print("REFRESH SYMBOLS: isloading False")
+                                isLoading = false
+                                DispatchQueue.main.async {
+                                    Task{
+                                    await viewModel.refresh()
+                                        isLoading = false // tells our view we are ready to view once loaded
+                                        print("REFRESH SYMBOLS: isloading TRUE")
+                                    }
+                                }
+                            }
+                    }
                 }
-                .environmentObject(favorites)  // this passes the environment object so we can determine what is favourited or not
+                .environmentObject(favorites) // passes the environment favourites to the
+                .onAppear {
+                    // perform an asynchronous task that will perform fetching view model data
+                    DispatchQueue.main.async {
+                        Task{
+                            await viewModel.refresh() // wait for it to fetch new data
+                            isLoading = false // once we have our data switch views
+                        }
+                    }
+                }
                 .tag(1)
                 .tabItem {
                     Image(systemName: "house.fill").font(.system(size: 26))
@@ -166,8 +190,6 @@ struct ContentView: View {
                 }
                 .accentColor(Color("TextColor"))
 
-                
-            
                 /*
 
                     MARKETS NAVIGATION VIEW
@@ -179,7 +201,6 @@ struct ContentView: View {
                     } else {
                         // load the markets view
                         MarketsView(viewModel: self.viewModel)
-                            
                             .refreshable {
                                 // this code is invoked on refresh gesture for this tab
                                 print("REFRESH SYMBOLS: isloading False")

@@ -84,8 +84,9 @@ struct FavouritesView: View {
             }
         }
         .listStyle(.plain)
-        .searchable(text: $searchText) // https://www.hackingwithswift.com/quick-start/swiftui/how-to-add-a-search-bar-to-filter-your-data
+        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always)) // https://www.hackingwithswift.com/quick-start/swiftui/how-to-add-a-search-bar-to-filter-your-data
         .navigationBarTitle("Favourite Crypto Assets")
+        .navigationBarTitleDisplayMode(.inline)
             
     }
 
