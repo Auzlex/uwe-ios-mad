@@ -16,7 +16,8 @@ struct MarketsView: View {
     
     @ObservedObject var viewModel: CCPCViewModel
     @State private var searchText = ""
- 
+    //@State private var price_history
+    
     @EnvironmentObject var favorites: Favorites
     
     init(viewModel: CCPCViewModel)
@@ -38,7 +39,7 @@ struct MarketsView: View {
                 
                 // create a navigation link to view a navigation link view object that is customizable
                 NavigationLink(
-                    destination: AssetView(symbolName: symbol, activeViewModel: viewModel),
+                    destination: AssetView(symbolName: symbol, activeViewModel: viewModel ), //, price_history:
                     label: {
                         AsyncImage(
                             url:URL(string:"https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@bea1a9722a8c63169dcc06e86182bf2c55a76bbc/32/color/\(String(String(symbol).dropLast(4)).lowercased()).png"),
@@ -55,15 +56,11 @@ struct MarketsView: View {
                         Text("\(symbol)")
                             .font(.system(size: 14, weight: .bold, design: .rounded))
                         Spacer()
-                        Text("+5%")
-                            .foregroundColor(Color.green)
-                            .frame(alignment: .trailing)
-                            .padding()
-//                                        Text("☆")
-//                                            .padding()
-//                                        Text("★")
-//                                            .foregroundColor(Color.yellow)
-//                                            .padding()
+//                        Text("+5%")
+//                            .foregroundColor(Color.green)
+//                            .frame(alignment: .trailing)
+//                            .padding()
+
                         
                         
                         Button(favorites.contains(symbol) ? "★" : "☆") {
@@ -84,6 +81,22 @@ struct MarketsView: View {
 
                 )
                 .frame(minWidth: 0, maxWidth: .infinity, alignment: .topLeading)
+//                .onAppear {
+//                    DispatchQueue.main.async {
+//                        Task {
+//                            print("MarketsView -> asset \(symbol) invoked on appear!")
+//
+//                            async let load1: () = await viewModel.fetch24price_change_for_symbol(symbolName: symbol)
+//                            {
+//                                price_history in DispatchQueue.main.async {
+//                                    print("APPEAR: ", price_history.priceChangePercent)
+//                                }
+//                            }
+//                            let _: [()] = await [load1]
+//                        }
+//                    }
+//
+//                }
 //                .background(Color(red: 24 / 255, green: 24 / 255, blue: 24 / 255))
 //                .cornerRadius(5)
 //                .border(Color(red: 45 / 255, green: 45 / 255, blue: 45 / 255), width: 1)

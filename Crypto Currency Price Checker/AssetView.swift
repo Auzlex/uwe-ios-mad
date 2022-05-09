@@ -9,6 +9,17 @@ import Foundation
 import SwiftUI
 import SwiftUICharts
 
+// removes trailing zeros
+extension Double {
+    func removeZerosFromEnd() -> String {
+        let formatter = NumberFormatter()
+        let number = NSNumber(value: self)
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 16 //maximum digits in Double after dot (maximum precision)
+        return String(formatter.string(from: number) ?? "")
+    }
+}
+
 /*
     AssetView is used by navigation link to view asset information that is passed into this view struct
 */
@@ -21,6 +32,7 @@ struct AssetView: View {
     @State var price: Double = 0 // stores price of currency
     @State var priceChange: [Double] = [ 0, 0 ] // stores price change data
     @State var price_percentage_hour_change: Double = 0 // stores percentage of price change
+    @State var price_history: price_history?
     
     @State var interval: String = "1w" // interval
     @State var limit: String = "14" // interval
@@ -79,6 +91,7 @@ struct AssetView: View {
     
         self.symbolNameAlone = String(String(symbolName).dropLast(4))
         self.viewModel = activeViewModel
+        //self.price_history =
     }
 
     var body: some View {
@@ -98,14 +111,29 @@ struct AssetView: View {
                             .font(.largeTitle)
                             .fontWeight(.bold)
                             //.padding(.top, 20)
-                        Text("$\(self.price, specifier: "%.\(self.symbolPrecision)f") PER \(symbolNameAlone)")
+                        
+                        // https://stackoverflow.com/questions/29560743/swift-remove-trailing-zeros-from-double
+                        if self.price_history != nil {
+                            Text("$\(Double(self.price_history!.lastPrice)!.removeZerosFromEnd()) PER \(symbolNameAlone)")
                             .font(.body)
                             //.fontWeight(.bold)
                             .padding(.top, 5)
-                        Text("24H CHANGE: \(self.price_percentage_hour_change)% 24h")
-                            .font(.body)
-                            //.fontWeight(.bold)
-                            .padding(.top, 5)
+                            HStack{
+                                Text("24H:")
+                                    .font(.body)
+                                Text("\(self.price_history!.priceChangePercent)%")
+                                    .font(.body)
+                                    //.fontWeight(.bold)
+                                    //.padding(.top, 5)
+                                    .foregroundColor((Double(self.price_history!.priceChangePercent)! > 0) ? .green : .red)
+                            }
+                        
+                  
+                            
+                        }
+                        else{
+                            Text("Loading Price Data...")
+                        }
                     }
                     .padding()
                 }
@@ -211,9 +239,14 @@ struct AssetView: View {
 
                     async let load2: () = await viewModel.fetch24price_change_for_symbol(symbolName: self.symbolName)
                     {
-                        price_change in DispatchQueue.main.async {
-                            self.priceChange = price_change
-                            self.price_percentage_hour_change = ( self.priceChange[1] - self.priceChange[0] )/(self.priceChange[0])
+                        
+//                        price_history_summary.openPrice
+//                        price_history_summary.lastPrice
+                        
+                        price_history in DispatchQueue.main.async {
+                            //self.priceChange = price_change
+                            self.price_history = price_history
+                            self.price_percentage_hour_change = ( Double(price_history.lastPrice)! - Double(price_history.openPrice)! )/(Double(price_history.openPrice)!)
                         }
                     }
 

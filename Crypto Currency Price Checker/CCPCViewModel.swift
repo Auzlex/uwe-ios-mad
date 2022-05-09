@@ -51,13 +51,13 @@ public class CCPCViewModel : ObservableObject {
 
     }
     
-    public func fetch24price_change_for_symbol(symbolName: String, completion: @escaping ([Double])->() ) async {
+    public func fetch24price_change_for_symbol(symbolName: String, completion: @escaping (price_history)->() ) async {
         
         await cryptoInformationService.get24hourPriceHistory(symbol: symbolName) {
             // this async function is called when we view a selected crypto currency
-            price_change in DispatchQueue.main.async {
-                print("fetch24price_change_for_symbol -> cryptoInformationService.get24hPriceForSymbol: \(price_change)")
-                completion(price_change)
+            price_history in DispatchQueue.main.async {
+                print("fetch24price_change_for_symbol -> cryptoInformationService.get24hPriceForSymbol: \(price_history)")
+                completion(price_history)
             }
         }
     }

@@ -68,6 +68,30 @@ public struct ExchangeInformation {
     
 }
 
+public struct price_history: Decodable {
+    let symbol: String
+    let priceChange: String
+    let priceChangePercent: String
+    let weightedAvgPrice: String
+    let prevClosePrice: String
+    let lastPrice: String
+    let lastQty: String
+    let bidPrice: String
+    let bidQty: String
+    let askPrice: String
+    let askQty: String
+    let openPrice: String
+    let highPrice: String
+    let lowPrice: String
+    let volume: String
+    let quoteVolume: String
+    let openTime: Int
+    let closeTime: Int
+    let firstId: Int
+    let lastId: Int
+    let count: Int
+}
+
 public final class CryptoInformationService: NSObject {
     private let API_KEY = ""
     private let SECRET_KEY = ""
@@ -137,51 +161,60 @@ public final class CryptoInformationService: NSObject {
 
     }
     
-    public func get24hourPriceHistory(symbol: String, completion: @escaping ([Double])->()) async {
+    public func get24hourPriceHistory(symbol: String, completion: @escaping (price_history)->()) async {
         
         // this web request will fetch the 24 hour price history
         let url = URL(string: "https://api.binance.com/api/v1/ticker/24hr?symbol=\(symbol.uppercased())")!
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             guard let data = data else { return }
             do {
-                let json = try JSONSerialization.jsonObject(with: data, options: [])
+                //let json = try JSONSerialization.jsonObject(with: data, options: [])
+
+                // attempt to decode price history summary
+                let price_history_summary = try JSONDecoder()
+                    .decode(price_history.self, from: data)
+
+                print( "get24hourPriceHistory() -> price_history_summary", price_history_summary )
+
+                completion( price_history_summary )
+
                 //print(json)
 
-                // create an empty double var
-                var openPrice: Double = -1
-                var lastPrice: Double = -1
-                if let dictionary = json as? [String: Any] {
+//                 // create an empty double var
+//                 var openPrice: Double = -1
+//                 var lastPrice: Double = -1
+//                 if let dictionary = json as? [String: Any] {
 
-                    for (key, value) in dictionary {
-                        // access all key / value pairs in dictionary
-                        //print(key, value)
+//                     for (key, value) in dictionary {
+//                         // access all key / value pairs in dictionary
+//                         //print(key, value)
                         
-//                        // if the key is "price" then set the price to the value as double
-//                        if key == "priceChangePercent" {
-//                            // convert price value from str to double
-//                            price_change = Double(value as! String) ?? 0.0
-//                            print("priceChangePercent:", price_change)
-//                            break
-//                        }
+// //                        // if the key is "price" then set the price to the value as double
+// //                        if key == "priceChangePercent" {
+// //                            // convert price value from str to double
+// //                            price_change = Double(value as! String) ?? 0.0
+// //                            print("priceChangePercent:", price_change)
+// //                            break
+// //                        }
                         
-                        if key == "openPrice"
-                        {
-                            openPrice = Double(value as! String) ?? 0.0
-                            print("openPrice:", openPrice)
-                        }
+//                         if key == "openPrice"
+//                         {
+//                             openPrice = Double(value as! String) ?? 0.0
+//                             print("openPrice:", openPrice)
+//                         }
                         
-                        if key == "lastPrice"
-                        {
-                            lastPrice = Double(value as! String) ?? 0.0
-                            print("lastPrice:", lastPrice)
-                        }
+//                         if key == "lastPrice"
+//                         {
+//                             lastPrice = Double(value as! String) ?? 0.0
+//                             print("lastPrice:", lastPrice)
+//                         }
                         
                         
                         
-                    }
-                }
+//                     }
+//                 }
                 
-                completion([ openPrice, lastPrice ])
+//                 completion([ openPrice, lastPrice ])
 
             } catch {
                 print(error)
