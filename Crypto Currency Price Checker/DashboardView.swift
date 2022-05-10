@@ -48,6 +48,8 @@ struct AssetQuickView: View {
     
 }
 
+
+
 struct DashboardView: View {
     
     @ObservedObject var viewModel: CCPCViewModel
@@ -61,7 +63,14 @@ struct DashboardView: View {
         
         print("DASHBOARD: ", self.viewModel.symbols.count)
         
-        // for every
+        // for every symbol fetch price using fetchprice_for_symbol function
+
+        for symbol in self.viewModel.symbols {
+            self.viewModel.fetchprice_for_symbol(symbolName: symbol.symbol) {
+                fetched_price in
+                print("fetched_price: ", fetched_price)
+            }
+        }
         
     }
     
