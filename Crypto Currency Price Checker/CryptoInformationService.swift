@@ -23,6 +23,7 @@
 // remember to remove this crap OKAY!!!!!!!!!
 // remember to remove this crap OKAY!!!!!!!!!
 // remember to remove this crap OKAY!!!!!!!!!
+// USE THIS SO SAVE TIME https://app.quicktype.io/ <- creates structs from json to decoables
 
 import Foundation
 import CoreFoundation
@@ -91,6 +92,295 @@ public struct price_history: Decodable {
     let lastId: Int
     let count: Int
 }
+
+//
+
+
+// MARK: - CoinMarketCapData
+public struct CoinMarketCapData: Codable {
+    let status: Status
+    let data: [String: Datum]
+}
+
+// MARK: - Platform
+struct Platform: Codable {
+    let id: Int
+    let name, symbol, slug, tokenAddress: String
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, symbol, slug
+        case tokenAddress = "token_address"
+    }
+}
+
+// MARK: - Datum
+struct Datum: Codable {
+    let id: Int
+    let name, symbol, slug: String
+    let numMarketPairs: Int
+    let dateAdded: String
+    let tags: [String]
+    let maxSupply: Int?
+    let circulatingSupply, totalSupply: Double
+    let isActive: Int
+    let platform: Platform?
+    let cmcRank, isFiat: Int
+    let selfReportedCirculatingSupply, selfReportedMarketCap: Double?
+    let lastUpdated: String
+    let quote: Quote
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, symbol, slug
+        case numMarketPairs = "num_market_pairs"
+        case dateAdded = "date_added"
+        case tags
+        case maxSupply = "max_supply"
+        case circulatingSupply = "circulating_supply"
+        case totalSupply = "total_supply"
+        case isActive = "is_active"
+        case platform
+        case cmcRank = "cmc_rank"
+        case isFiat = "is_fiat"
+        case selfReportedCirculatingSupply = "self_reported_circulating_supply"
+        case selfReportedMarketCap = "self_reported_market_cap"
+        case lastUpdated = "last_updated"
+        case quote
+    }
+}
+
+// MARK: - Quote
+struct Quote: Codable {
+    let usd: Usd
+
+    enum CodingKeys: String, CodingKey {
+        case usd = "USD"
+    }
+}
+
+// MARK: - Usd
+struct Usd: Codable {
+    let price, volume24H, volumeChange24H, percentChange1H: Double
+    let percentChange24H, percentChange7D, percentChange30D, percentChange60D: Double
+    let percentChange90D, marketCap, marketCapDominance, fullyDilutedMarketCap: Double
+    let lastUpdated: String
+
+    enum CodingKeys: String, CodingKey {
+        case price
+        case volume24H = "volume_24h"
+        case volumeChange24H = "volume_change_24h"
+        case percentChange1H = "percent_change_1h"
+        case percentChange24H = "percent_change_24h"
+        case percentChange7D = "percent_change_7d"
+        case percentChange30D = "percent_change_30d"
+        case percentChange60D = "percent_change_60d"
+        case percentChange90D = "percent_change_90d"
+        case marketCap = "market_cap"
+        case marketCapDominance = "market_cap_dominance"
+        case fullyDilutedMarketCap = "fully_diluted_market_cap"
+        case lastUpdated = "last_updated"
+    }
+}
+
+// MARK: - Status
+struct Status: Codable {
+    let timestamp: String
+    let errorCode: Int
+    let errorMessage: String?
+    let elapsed, creditCount: Int
+    let notice: String?
+
+    enum CodingKeys: String, CodingKey {
+        case timestamp
+        case errorCode = "error_code"
+        case errorMessage = "error_message"
+        case elapsed
+        case creditCount = "credit_count"
+        case notice
+    }
+}
+
+// MARK: - Encode/decode helpers
+
+class JSONNull: Codable {
+
+    public static func == (lhs: JSONNull, rhs: JSONNull) -> Bool {
+        return true
+    }
+
+//    public var hashValue: Int {
+//        return 0
+//    }
+
+    public init() {}
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if !container.decodeNil() {
+            throw DecodingError.typeMismatch(JSONNull.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Wrong type for JSONNull"))
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encodeNil()
+    }
+}
+
+
+//public struct status: Decodable {
+//    var timestamp: String?
+//    var error_code: Int?
+//    var error_message: String?
+//    var elapsed: Int?
+//    var credit_count: Int?
+//    var notice: String?
+//}
+//
+//// MARK: - Quote
+//struct Quote: Codable {
+//    let usd: Usd
+//
+//    enum CodingKeys: String, CodingKey {
+//        case usd = "USD"
+//    }
+//}
+//
+//// MARK: - Usd
+//struct Usd: Codable {
+//    let price, volume24H, volumeChange24H, percentChange1H: Double
+//    let percentChange24H, percentChange7D, percentChange30D, percentChange60D: Double
+//    let percentChange90D, marketCap, marketCapDominance, fullyDilutedMarketCap: Double
+//    let lastUpdated: String
+//
+//    enum CodingKeys: String, CodingKey {
+//        case price
+//        case volume24H = "volume_24h"
+//        case volumeChange24H = "volume_change_24h"
+//        case percentChange1H = "percent_change_1h"
+//        case percentChange24H = "percent_change_24h"
+//        case percentChange7D = "percent_change_7d"
+//        case percentChange30D = "percent_change_30d"
+//        case percentChange60D = "percent_change_60d"
+//        case percentChange90D = "percent_change_90d"
+//        case marketCap = "market_cap"
+//        case marketCapDominance = "market_cap_dominance"
+//        case fullyDilutedMarketCap = "fully_diluted_market_cap"
+//        case lastUpdated = "last_updated"
+//    }
+//}
+//
+//public struct data: Decodable {
+//    var id: Int
+//    var name: String
+//    var symbol: String
+//    var slug: String
+//    var num_market_pairs: Int
+//    var date_added: String
+//    var tags: [String]
+//    var max_supply: Int?
+//    var circulating_supply: Double?
+//    var total_supply: Double
+//    var is_active: Int
+//    var platform: String?
+//    var cmc_rank: Int
+//    var is_fiat: Int
+//    var self_reported_circulating_supply: String?
+//    var self_reported_market_cap: String?
+//    var last_updated: String
+//    let usd: Usd
+//    // quote:
+//    //     USD: {
+//    //     price: 31838.08640698367,
+//    //     volume_24h: 59521540343.03524,
+//    //     volume_change_24h: -26.5707,
+//    //     percent_change_1h: 0.35728428,
+//    //     percent_change_24h: 1.48831783,
+//    //     percent_change_7d: -18.3267915,
+//    //     percent_change_30d: -23.45656086,
+//    //     percent_change_60d: -18.83001491,
+//    //     percent_change_90d: -28.66395829,
+//    //     market_cap: 606098467121.1074,
+//    //     market_cap_dominance: 42.6563,
+//    //     fully_diluted_market_cap: 668599814546.66,
+//    //     last_updated: "2022-05-11T11:01:00.000Z"
+//    //     }
+//    // }
+//}
+//
+//public struct coin_market_cap_data: Decodable
+//{
+//    var data: Dictionary<String, data>
+//    var status: status
+//}
+//
+//public struct status2: Decodable {
+//    var timestamp: String?
+//    var error_code: Int?
+//    var error_message: String?
+//    var elapsed: Int?
+//    var credit_count: Int?
+//    var notice: String?
+//    var total_count: Int?
+//}
+//
+//public struct data2: Decodable {
+//    var id: Int?
+//    var name: String?
+//    var symbol: String?
+//    var slug: String?
+//    var num_market_pairs: Int?
+//    var date_added: String?
+//    var tags: [String]
+//    var max_supply: Int?
+//    var circulating_supply: Double?
+//    var total_supply: Double?
+//    var cmc_rank: Int?
+//    var self_reported_circulating_supply: String?
+//    var self_reported_market_cap: String?
+//    var last_updated: String?
+//    // quote: {
+//    //     USD: {
+//    //     price: 31838.08640698367,
+//    //     volume_24h: 59521540343.03524,
+//    //     volume_change_24h: -26.5707,
+//    //     percent_change_1h: 0.35728428,
+//    //     percent_change_24h: 1.48831783,
+//    //     percent_change_7d: -18.3267915,
+//    //     percent_change_30d: -23.45656086,
+//    //     percent_change_60d: -18.83001491,
+//    //     percent_change_90d: -28.66395829,
+//    //     market_cap: 606098467121.1074,
+//    //     market_cap_dominance: 42.6563,
+//    //     fully_diluted_market_cap: 668599814546.66,
+//    //     last_updated: "2022-05-11T11:01:00.000Z"
+//    //     }
+//    // }
+//    
+//    public init(from decoder: Decoder) throws {
+//        var container = try decoder.unkeyedContainer()
+//        
+//        id = try container.decode(Int.self)
+//        name = try container.decode(String.self)
+//        symbol = try container.decode(String.self)
+//        slug = try container.decode(String.self)
+//        num_market_pairs = try container.decode(Int.self)
+//        date_added = try container.decode(String.self)
+//        tags = try container.decode([String].self)
+//        max_supply = try container.decode(Int.self)
+//        circulating_supply = try container.decode(Double.self)
+//        total_supply = try container.decode(Double.self)
+//        cmc_rank = try container.decode(Int.self)
+//        self_reported_circulating_supply = try container.decode(String.self)
+//        self_reported_market_cap = try container.decode(String.self)
+//        last_updated = try container.decode(String.self)
+//    }
+//}
+//
+//public struct coin_market_cap_data_dict: Decodable
+//{
+//    var data: [data2]
+//    var status: status2
+//}
 
 public final class CryptoInformationService: NSObject {
     private let API_KEY = ""
@@ -283,19 +573,12 @@ public final class CryptoInformationService: NSObject {
     public func get_historic_kline_data(symbolName: String, interval: String, limit: String, completion: @escaping (LineChartData)->() ) async {
 
         let url = URL(string: "https://api.binance.com/api/v3/klines?symbol=\(symbolName.uppercased())&interval=\(interval)&limit=\(limit)")!
-//        print(url)
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             guard let data = data else { return }
             do {
                 
                 let k_data = try JSONDecoder()
                     .decode([Kline_data].self, from: data)
-
-//                // convert k_data into Kline_data_simple
-//                var k_data_simple = [Kline_data_simple]()
-//                for k in k_data {
-//                    k_data_simple.append(Kline_data_simple(open_time: k.open_time, open: k.open, high: k.high, low: k.low, close: k.close, volume: k.volume, close_time: k.close_time, quote_asset_volume: k.quote_asset_volume, number_of_trades: k.number_of_trades, taker_buy_base_asset_volume: k.taker_buy_base_asset_volume, taker_buy_quote_asset_volume: k.taker_buy_quote_asset_volume, ignore: k.ignore))
-//                }
 
                 var data_points = [LineChartDataPoint]()
                 var i = 0;
@@ -353,6 +636,63 @@ public final class CryptoInformationService: NSObject {
         task.resume()
 
     }
+        
+    // fetch top coins from coin market cap
+    public func fetch_coinmarket_cap_data(symbol: String, completion: @escaping (CoinMarketCapData)->() ) async {
+
+        // ?CMC_PRO_API_KEY=07ed2739-4bcb-4806-83ae-948f1ce01ae9&
+        let url = URL(string: "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?CMC_PRO_API_KEY=07ed2739-4bcb-4806-83ae-948f1ce01ae9&symbol=\(symbol.uppercased())")!
+//        var request = URLRequest(url:url)
+//        request.allHTTPHeaderFields = [
+//            "CMC_PRO_API_KEY": "07ed2739-4bcb-4806-83ae-948f1ce01ae9"
+//        ]
+//        request.setValue("application/png", forHTTPHeaderField: "Content-Type")
+        
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            guard let data = data else { return }
+            do {
+                // let json = try JSONSerialization.jsonObject(with: data, options: [])
+                // print(json)
+
+               let cmc_data = try JSONDecoder()
+                   .decode(CoinMarketCapData.self, from: data)
+
+                //print(cmc_data)
+            
+                completion(cmc_data)
+
+            } catch {
+                print(error)
+            }
+        }
+        task.resume()
+
+    }
+    
+//    public func fetch_coinmarket_cap_latest(completion: @escaping (coin_market_cap_data_dict)->()) async {
+//
+//            // ?CMC_PRO_API_KEY=07ed2739-4bcb-4806-83ae-948f1ce01ae9&
+//            let url = URL(string: "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?CMC_PRO_API_KEY=07ed2739-4bcb-4806-83ae-948f1ce01ae9")!
+//            let task = URLSession.shared.dataTask(with: url) { data, response, error in
+//                guard let data = data else { return }
+//                do {
+//                     let json = try JSONSerialization.jsonObject(with: data, options: [])
+//                     //print(json)
+//
+//                   let cmc_data = try JSONDecoder()
+//                       .decode(coin_market_cap_data_dict.self, from: data)
+//
+//                    //print(cmc_data)
+//
+//                    completion(cmc_data)
+//
+//                } catch {
+//                    print(error)
+//                }
+//            }
+//            task.resume()
+
+//    }
     
 }
 

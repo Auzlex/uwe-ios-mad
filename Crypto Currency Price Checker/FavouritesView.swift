@@ -49,16 +49,21 @@ struct FavouritesView: View {
                                 },
                                 placeholder: {
                                     //ProgressView()
-                                    Image("nosign")
+                                    PlaceHolderIcon(symbolname: symbol)
+    //                                    .frame(width: 32, height: 32)
                                 }
                             )
+                            .frame(maxWidth: 32, maxHeight: 32, alignment: .center)
+    //                            .frame(width: 32, height: 32, alignment: .center)
                             Text("\(symbol)")
                                 .font(.system(size: 14, weight: .bold, design: .rounded))
                             Spacer()
-                            Text("+5%")
-                                .foregroundColor(Color.green)
-                                .frame(alignment: .trailing)
-                                .padding()
+                            
+                            // removed due to API restriction
+//                            Text("+5%")
+//                                .foregroundColor(Color.green)
+//                                .frame(alignment: .trailing)
+//                                .padding()
 
                     
                             Button(favorites.contains(symbol) ? "★" : "☆") {

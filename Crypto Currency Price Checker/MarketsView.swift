@@ -50,9 +50,12 @@ struct MarketsView: View {
                             },
                             placeholder: {
                                 //ProgressView()
-                                Image("nosign")
+                                PlaceHolderIcon(symbolname: symbol)
+//                                    .frame(width: 32, height: 32)
                             }
                         )
+                        .frame(maxWidth: 32, maxHeight: 32, alignment: .center)
+//                            .frame(width: 32, height: 32, alignment: .center)
                         Text("\(symbol)")
                             .font(.system(size: 14, weight: .bold, design: .rounded))
                         Spacer()

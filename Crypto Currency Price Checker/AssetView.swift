@@ -33,6 +33,7 @@ struct AssetView: View {
     @State var priceChange: [Double] = [ 0, 0 ] // stores price change data
     @State var price_percentage_hour_change: Double = 0 // stores percentage of price change
     @State var price_history: price_history?
+    @State var asset_data: Datum?
     
     @State var interval: String = "1w" // interval
     @State var limit: String = "14" // interval
@@ -103,12 +104,25 @@ struct AssetView: View {
             }
             else {
                 HStack{
-                    AsyncImage(url:URL(string:"https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@bea1a9722a8c63169dcc06e86182bf2c55a76bbc/128/color/\(symbolNameAlone.lowercased()).png")
+                    AsyncImage(
+                        url:URL(string:"https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@bea1a9722a8c63169dcc06e86182bf2c55a76bbc/128/color/\(symbolNameAlone.lowercased()).png"
+                        ),
+                        content: { image in
+                            image.resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(maxHeight: 128)
+                        },
+                        placeholder: {
+                            //ProgressView()
+                            PlaceHolderIcon(symbolname: symbolNameAlone)
+                                //.frame(width: 128, height: 128, alignment: .center)
+                        }
                     )
-                        .padding(.all, 5)
+                        .frame(width: 128, height: 128, alignment: .center)
+                        //.padding(.all, 5)
                     VStack {
                         Text("\(symbolName)")
-                            .font(.largeTitle)
+                            .font(.title)
                             .fontWeight(.bold)
                             //.padding(.top, 20)
                         
@@ -126,6 +140,18 @@ struct AssetView: View {
                                     //.fontWeight(.bold)
                                     //.padding(.top, 5)
                                     .foregroundColor((Double(self.price_history!.priceChangePercent)! > 0) ? .green : .red)
+                            }
+                            HStack{
+                                Text("24H:")
+                                    .font(.body)
+                                
+                                var data = self.asset_data?.data
+                                
+                                Text("\( self.asset_data?.quote.usd.percentChange24H ?? 0 )")
+                                    .font(.body)
+                                    //.fontWeight(.bold)
+                                    //.padding(.top, 5)
+                                    //.foregroundColor((Double(self.price_history!.priceChangePercent)! > 0) ? .green : .red)
                             }
                         
                   
@@ -145,22 +171,22 @@ struct AssetView: View {
                                        strokeStyle: StrokeStyle(lineWidth: 3))
                         .touchOverlay(chartData: data, unit: .suffix(of: "Steps"))
                         .pointMarkers(chartData: data)
-                        .yAxisPOI(chartData: data,
-                                  markerName: "Highest Close Price",
-                                  markerValue: highest,
-                                  labelPosition: .center(specifier: "%.000f"),
-                                  labelColour: Color.black,
-                                  labelBackground: Color(red: 1.0, green: 0.75, blue: 0.25),
-                                  lineColour: Color(red: 1.0, green: 0.75, blue: 0.25),
-                                  strokeStyle: StrokeStyle(lineWidth: 3, dash: [5,10]))
-                        .yAxisPOI(chartData: data,
-                                  markerName: "Lowest Close Price",
-                                  markerValue: lowest,
-                                  labelPosition: .center(specifier: "%.000f"),
-                                  labelColour: Color.white,
-                                  labelBackground: Color(red: 0.25, green: 0.75, blue: 1.0),
-                                  lineColour: Color(red: 0.25, green: 0.75, blue: 1.0),
-                                  strokeStyle: StrokeStyle(lineWidth: 3, dash: [5,10]))
+//                        .yAxisPOI(chartData: data,
+//                                  markerName: "Highest Close Price",
+//                                  markerValue: highest,
+//                                  labelPosition: .center(specifier: "%.000f"),
+//                                  labelColour: Color.black,
+//                                  labelBackground: Color(red: 1.0, green: 0.75, blue: 0.25),
+//                                  lineColour: Color(red: 1.0, green: 0.75, blue: 0.25),
+//                                  strokeStyle: StrokeStyle(lineWidth: 3, dash: [5,10]))
+//                        .yAxisPOI(chartData: data,
+//                                  markerName: "Lowest Close Price",
+//                                  markerValue: lowest,
+//                                  labelPosition: .center(specifier: "%.000f"),
+//                                  labelColour: Color.white,
+//                                  labelBackground: Color(red: 0.25, green: 0.75, blue: 1.0),
+//                                  lineColour: Color(red: 0.25, green: 0.75, blue: 1.0),
+//                                  strokeStyle: StrokeStyle(lineWidth: 3, dash: [5,10]))
                         .averageLine(chartData: data,
                                      strokeStyle: StrokeStyle(lineWidth: 3, dash: [5,10]))
                         .xAxisGrid(chartData: data)
@@ -229,45 +255,84 @@ struct AssetView: View {
             DispatchQueue.main.async {
                 Task {
                     
-                    // we await price data
-                    async let load1: () = await viewModel.fetchprice_for_symbol(symbolName: self.symbolName)
-                    {
-                        fetched_price in DispatchQueue.main.async {
-                            self.price = fetched_price
+                    DispatchQueue.main.async {
+                        Task {
+                            // we await price data
+                            await viewModel.fetchprice_for_symbol(symbolName: self.symbolName)
+                            {
+                                fetched_price in DispatchQueue.main.async {
+                                    self.price = fetched_price
+                                    
+                                    DispatchQueue.main.async {
+                                        Task {
+                                    await viewModel.fetch24price_change_for_symbol(symbolName: self.symbolName)
+                                    {
+                                        
+                //                        price_history_summary.openPrice
+                //                        price_history_summary.lastPrice
+                                        
+                                        price_history in DispatchQueue.main.async {
+                                            //self.priceChange = price_change
+                                            self.price_history = price_history
+                                            self.price_percentage_hour_change = ( Double(price_history.lastPrice)! - Double(price_history.openPrice)! )/(Double(price_history.openPrice)!)
+                                            
+                                            DispatchQueue.main.async {
+                                                Task {
+                                                    
+                                            await viewModel.cryptoInformationService.get_historic_kline_data(symbolName: self.symbolName, interval: interval, limit: limit)
+                                            {
+                                                historic_kline_data in DispatchQueue.main.async {
+                                                    print("historic_kline_data -> :", historic_kline_data)
+                                                    
+                                                    // with historic_kline_data generate LineDataSet close
+                                                    //let close = historic_kline_data.map { $0.close }
+
+                                                    data = historic_kline_data
+                                                    
+                                                    DispatchQueue.main.async {
+                                                        Task {
+                                                    await viewModel.cryptoInformationService.fetch_coinmarket_cap_data(symbol: self.symbolNameAlone)
+                                                    {
+                                                        data2 in DispatchQueue.main.async {
+                                                            print("asset_data -> :", data2)
+                                                            
+                                                            // with historic_kline_data generate LineDataSet close
+                                                            //let close = historic_kline_data.map { $0.close }
+
+                                                            asset_data = data2.data
+                                  
+                                                            isLoading = false
+                                                            
+                                                        }
+                                                    }
+                                                        }}
+                          
+                                                }
+                                            }
+                                                }}
+                                        }
+                                    }
+                                        }
+                                        
+                                    }
+                                }
+                            }
                         }
                     }
 
-                    async let load2: () = await viewModel.fetch24price_change_for_symbol(symbolName: self.symbolName)
-                    {
-                        
-//                        price_history_summary.openPrice
-//                        price_history_summary.lastPrice
-                        
-                        price_history in DispatchQueue.main.async {
-                            //self.priceChange = price_change
-                            self.price_history = price_history
-                            self.price_percentage_hour_change = ( Double(price_history.lastPrice)! - Double(price_history.openPrice)! )/(Double(price_history.openPrice)!)
-                        }
-                    }
-
-                    async let load3: () = await viewModel.cryptoInformationService.get_historic_kline_data(symbolName: self.symbolName, interval: interval, limit: limit)
-                    {
-                        historic_kline_data in DispatchQueue.main.async {
-                            print("historic_kline_data -> :", historic_kline_data)
-                            
-                            // with historic_kline_data generate LineDataSet close
-                            //let close = historic_kline_data.map { $0.close }
-
-                            data = historic_kline_data
-  
-                        }
-                    }
-
-                    let _: [()] = await [load1, load2, load3]
-
-                    isLoading = false
                     
-                    print("Loaded??")
+                    
+                    
+                    
+                    
+                    
+                    
+
+                    //let _: [()] = await [load1, load2, load3, load4]
+
+                    //isLoading = false
+                    
+                    //print("Loaded??")
 
 //                            print("viewModel.fetchprice_for_symbol -> :", self.price)
 //                            print("viewModel.fetchprice_for_symbol -> :", self.priceChange)

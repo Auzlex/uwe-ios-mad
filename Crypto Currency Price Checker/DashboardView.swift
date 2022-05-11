@@ -8,35 +8,97 @@
 import Foundation
 import SwiftUI
 
+struct PlaceHolderIcon: View {
+    
+    @State var symbolname = ""
+    
+    var body: some View {
+        
+        return GeometryReader{g in ZStack {
+    
+            Circle()
+                .fill(Color("TextColor"))
+                .frame(maxWidth: .infinity, maxHeight:.infinity)   // 2//.frame(width: 32, height: 32)
+            Text(symbolname.dropLast(symbolname.count-2))
+                    .foregroundColor(Color("TextColorInvert"))
+                    .font(.system(size: g.size.height > g.size.width ? g.size.width * 0.2: g.size.height * 0.2))
+                    //.minimumScaleFactor(0.001)
+                    .frame(maxWidth: .infinity, maxHeight:.infinity, alignment: .center) //.frame(width: 32, height: 32, alignment: .center)
+                    //.padding()
+            
+        }
+            
+        }
+    
+                
+//                .overlay(
+//                    Circle()
+//                    .stroke(Color.gray, lineWidth: 3)
+//                    .padding(16)
+//                )
+        
+        
+    }
+    
+}
+
 // used to put crypto information in
 struct AssetQuickView: View {
+    
+    @ObservedObject var viewModel: CCPCViewModel
     @State var title = "" // stores title of asset
     @State var description = "" // stores quick description
+    @State var asset_data: Datum?
     @State var icon = "" // stores name of the icon
+    
     
     var body: some View {
         
         return HStack {
             
-            Image(systemName: icon)
-                .font(.system(size: 30))
-                .frame(width: 50, height: 50)
-                //.background(colors[elem % colors.count])
-                .cornerRadius(10)
-                .padding(.leading, 10)
-            
-            VStack(alignment: .leading) {
-                Text("Title")
-                    .font(.title3)
-                    .bold()
+            NavigationLink(
+                destination: AssetView(symbolName: title + "USDT", activeViewModel: viewModel ),
+                label: {
+                    AsyncImage(
+                        url:URL(string:"https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@bea1a9722a8c63169dcc06e86182bf2c55a76bbc/32/color/\(String(icon).lowercased()).png"),
+                        content: { image in
+                            image.resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(maxHeight: 32)
+                        },
+                        placeholder: {
+                            //ProgressView()
+                            //Image("nosign")
+                            PlaceHolderIcon(symbolname: title)
+                        }
+                    )
+                    //.font(.system(size: 30))
+                    .frame(width: 50, height: 50)
+                    //.background(colors[elem % colors.count])
+                    .cornerRadius(10)
+                    .padding(.leading, 5)
+                    
+                    VStack(alignment: .leading) {
+                        Text(self.title)
+                            .font(.title3)
+                            .bold()
+                            .foregroundColor(Color("TextColor"))
+                        
+                        Text("$\( String(format: "%.3f", self.asset_data?.quote.usd.price ?? 0) )")
+                            .font(.system(size: 12))
+                            .foregroundColor(Color("TextColor"))
+                        
+                        Text( "\( String(format: "%.2f", self.asset_data?.quote.usd.percentChange24H ?? 0) )%" )
+                            .font(.system(size: 12))
+                            .foregroundColor((self.asset_data?.quote.usd.percentChange24H ?? 0 > 0) ? .green : .red )
+                    }
                 
-                Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit.")
-                    .font(.system(size: 12))
-            }
-            
+            })
         }
+        .foregroundColor(Color("TextColor"))
+        .padding(.trailing, 10)
         .frame(maxWidth: 150, maxHeight: .infinity)
-        .background(Color.white)
+        .background(Color("TextColorInvert"))
         .cornerRadius(15)
         .shadow(color: .gray, radius: 0, x: 1, y: 2)
         .overlay(
@@ -48,29 +110,39 @@ struct AssetQuickView: View {
     
 }
 
-
-
 struct DashboardView: View {
     
     @ObservedObject var viewModel: CCPCViewModel
     @EnvironmentObject var favorites: Favorites
     
+    @State var isLoading: Bool = true // async loading variable for this view
+    
     @State var text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu magna sapien. Nullam sagittis fringilla nulla, quis faucibus eros iaculis quis. Phasellus pellentesque aliquet neque."
+    
+    @State var latest_trends_data: CoinMarketCapData?
+    @State var gainers_and_losers_data: CoinMarketCapData?
     
     init(viewModel: CCPCViewModel)
     {
         self.viewModel = viewModel
         
-        print("DASHBOARD: ", self.viewModel.symbols.count)
+        //sprint("DASHBOARD: ", self.viewModel.symbols.count)
         
-        // for every symbol fetch price using fetchprice_for_symbol function
-
-        for symbol in self.viewModel.symbols {
-            self.viewModel.fetchprice_for_symbol(symbolName: symbol.symbol) {
-                fetched_price in
-                print("fetched_price: ", fetched_price)
-            }
-        }
+//        var top_cryptos = [
+//
+//            "BTC",
+//            "ETH",
+//
+//
+//        ]
+        
+//        // for every symbol fetch price using fetchprice_for_symbol function
+//        for symbol in self.viewModel.symbols {
+//            self.viewModel.fetchprice_for_symbol(symbolName: symbol.symbol) {
+//                fetched_price in
+//                print("fetched_price: ", fetched_price)
+//            }
+//        }
         
     }
     
@@ -82,180 +154,166 @@ struct DashboardView: View {
     
     var body: some View {
 
+        
+        
         VStack {
         
-            VStack (alignment: .leading) {
-                    Text(text)
-                    .padding()
-                    .lineLimit(1)
-                    .fixedSize()
-                    //https://swiftuirecipes.com/blog/swiftui-marquee
-                    .marquee(duration: 15, direction: .rightToLeft, autoreverse:true )
-                    .background(Color.yellow)
-                    
+            if isLoading{
+                LoadingView()
             }
-            //.background(Color.yellow)
-//            .frame(width: 230, height: 30)
-//            .clipShape(RoundedRectangle(cornerRadius: 0, style: .continuous))
-            
-            Text("Top Coins")
-                .bold()
-            ScrollView(.horizontal) {
-                LazyHGrid(rows: threeColumnGrid) {
-                    // Display the item
-                    ForEach((0...10), id: \.self) { elem in
+            else
+            {
+                VStack (alignment: .leading) {
+                        Text(text)
+                        .padding()
+                        .lineLimit(1)
+                        .fixedSize()
+                        //https://swiftuirecipes.com/blog/swiftui-marquee
+                        .marquee(duration: 15, direction: .rightToLeft, autoreverse:true )
+                        .background(Color.yellow)
+                        .foregroundColor(Color.black)
                         
-                        AssetQuickView(
-                            title: "ASSET_NAME",
-                            description: "ASSET_DESC",
-                            icon: symbols[elem % symbols.count]
-                        )
-                        
-                    }
                 }
-                .padding(.bottom, 10) // this adds space all around
-                .padding(.leading, 5)
-                .padding(.trailing, 5)
-            }
-            
-            Text("Gainers & Losers")
-                .bold()
-            ScrollView(.horizontal) {
-                LazyHGrid(rows: threeColumnGrid) {
-                    // Display the item
-                    ForEach((0...10), id: \.self) { elem in
+                //.background(Color.yellow)
+    //            .frame(width: 230, height: 30)
+    //            .clipShape(RoundedRectangle(cornerRadius: 0, style: .continuous))
+                
+                Text("Top Coins")
+                    .bold()
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHGrid(rows: threeColumnGrid) {
                         
-                        AssetQuickView(
-                            title: "ASSET_NAME",
-                            description: "ASSET_DESC",
-                            icon: symbols[elem % symbols.count]
-                        )
+                        let keys = latest_trends_data!.data.map{$0.key}
+                        let values = latest_trends_data!.data.map {$0.value}
                         
-                    }
-                }
-                .padding(.bottom, 10) // this adds space all around
-                .padding(.leading, 5)
-                .padding(.trailing, 5)
-            }
-            
-            Text("Crypto News")
-                .bold()
-            ScrollView() {
-                LazyVGrid(columns: threeColumnGrid) {
-                    // Display the item
-                    ForEach((0...10), id: \.self) { elem in
-                        
-                        HStack {
+                        // Display the item
+                        ForEach(keys.indices, id: \.self) { index in
                             
-                            Image(systemName: symbols[elem % symbols.count])
-                                .font(.system(size: 30))
-                                .frame(width: 100, height: 100)
-                                .background(colors[elem % colors.count])
-                                .cornerRadius(10)
-                            
-                            VStack(alignment: .leading) {
-                                Text("Title")
-                                    .font(.title3)
-                                    .bold()
-                                
-                                Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu magna sapien. Nullam sagittis fringilla nulla, quis faucibus eros iaculis quis. Phasellus pellentesque aliquet neque.")
-                                    .font(.system(size: 12))
-                            }
+                            AssetQuickView(
+                                viewModel: self.viewModel,
+                                title: values[index].symbol,
+                                description: "ASSET_DESC",
+                                asset_data: values[index],
+                                icon: values[index].symbol
+                            )
                             
                         }
-                        .background(Color.white)
-                        .cornerRadius(15)
-                        .shadow(color: .gray, radius: 0, x: 1, y: 2)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 15)
-                                .stroke(Color.gray, lineWidth: 0.7)
-                        )
-                        
-                        
-
                     }
+                    .padding(.bottom, 10) // this adds space all around
+                    .padding(.leading, 5)
+                    .padding(.trailing, 5)
                 }
-                .padding() // this adds space all around
+                
+                Text("Gainers & Losers")
+                    .bold()
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHGrid(rows: threeColumnGrid) {
+                        
+                        let keys = gainers_and_losers_data!.data.map{$0.key}
+                        let values = gainers_and_losers_data!.data.map {$0.value}
+                        
+                        // Display the item
+                        ForEach(keys.indices, id: \.self) { index in
+
+                            AssetQuickView(
+                                viewModel: self.viewModel,
+                                title: values[index].symbol,
+                                description: "ASSET_DESC",
+                                asset_data: values[index],
+                                icon: values[index].symbol
+                            )
+                            
+
+                        }
+                    }
+                    .padding(.bottom, 10) // this adds space all around
+                    .padding(.leading, 5)
+                    .padding(.trailing, 5)
+                }
+                
+                Text("Crypto News")
+                    .bold()
+                ScrollView() {
+                    LazyVGrid(columns: threeColumnGrid) {
+                        // Display the item
+                        ForEach((0...10), id: \.self) { elem in
+                            
+                            HStack {
+                                
+                                Image(systemName: symbols[elem % symbols.count])
+                                    .font(.system(size: 30))
+                                    .frame(width: 100, height: 100)
+                                    .background(colors[elem % colors.count])
+                                    .cornerRadius(10)
+                                
+                                VStack(alignment: .leading) {
+                                    Text("Title")
+                                        .font(.title3)
+                                        .bold()
+                                    
+                                    Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu magna sapien. Nullam sagittis fringilla nulla, quis faucibus eros iaculis quis. Phasellus pellentesque aliquet neque.")
+                                        .font(.system(size: 12))
+                                }
+                                
+                            }
+                            .background(Color("TextColorInvert"))
+                            .cornerRadius(15)
+                            .shadow(color: .gray, radius: 0, x: 1, y: 2)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .stroke(Color.gray, lineWidth: 0.7)
+                            )
+                            
+                            
+
+                        }
+                    }
+                    .padding() // this adds space all around
+                }
             }
             
         }
+        .foregroundColor(Color("TextColor"))
         .navigationBarTitle("Crypto Dashboard")
         .navigationBarTitleDisplayMode(.inline)
-        
-    
-        
-        
-        
-        
-        
-        
-        
-        
-        //.navigationBarTitle("Crypto Dashboard")
-        
-//        // Vstack
-//        VStack(alignment: .leading) {
-//
-//            //ScrollView{
-//
-//            // NOTE: Removing these 2 vstacks fixes the safe area being ignored????
-////                VStack(spacing: 20) {
-////                    Text("Top Cryptos")
-////                    Text("IMPLEMENT_TOP_CRYPTOS")
-////                }
-////                .frame(maxWidth: .infinity)
-////
-////                VStack(spacing: 20) {
-////                    Text("Gainers & Losers")
-////                    Text("IMPLEMENT_GAINERS_&_LOOSERS")
-////                }
-////                .frame(maxWidth: .infinity)
-//
-//                VStack(spacing: 20) {
-//                    Text("News")
-//                    ScrollView {
-//                        ForEach((1...10), id: \.self) { i in
-//                            HStack {
-//                                AsyncImage(
-//                                    url:URL(string:"https://ichef.bbci.co.uk/news/1024/branded_news/1257B/production/_118713157_gettyimages-897291236.jpg"),
-//                                    content: { image in
-//                                        image.resizable()
-//                                            .aspectRatio(contentMode: .fit)
-//                                            .frame(maxHeight: 100)
-//                                    },
-//                                    placeholder: {
-//                                        //ProgressView()
-//                                        Image("nosign")
-//                                    }
-//                                )
-//                                .cornerRadius(10)
-//                                //.padding(.all, 5)
-//                                //.frame(maxWidth: 100, maxHeight: 100)
-//                                .frame(width: 100, height: 100)
-//                                //.aspectRatio(contentMode: .fit)
-//
-//                                Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut quis nunc in ligula pretium varius. Integer velit nulla, posuere in tempor vel, viverra vel ante. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce interdum in sapien sit amet pharetra. Sed sed risus sed diam commodo tristique et non est. Aenean nec dapibus quam. Vivamus convallis ipsum sed arcu egestas mattis placerat ut elit.")
-//                                .padding()
-//                                .font(.system(size: 12))
-//                                .overlay(
-//                                        RoundedRectangle(cornerRadius: 0)
-//                                            .stroke(Color.gray, lineWidth: 1)
-//                                        )
-//                            }
-//                        }
-//                    }
-//                }
-//                //.frame(maxWidth: .infinity)//, maxHeight: 400)
-//                //.background(Color.gray)
-//
-//            //}
-//            //.frame(maxWidth: .infinity)
-//            //.background(Color.gray)
-//
-//
-//        }
-//        .navigationBarTitle("Crypto Dashboard") // define navigation view title
-        
+        .onAppear{
+            if isLoading {
+                
+            
+            DispatchQueue.main.async {
+                Task{ // fetch_coinmarket_cap_data
+                    
+                    await viewModel.cryptoInformationService.fetch_coinmarket_cap_data(symbol: "BTC,ETH,DOGE,MATIC,XRP,ATOM,LTC")
+                    {
+                        
+                        data in DispatchQueue.main.async {
+                            print("latest_trends_data",data)
+                            latest_trends_data = data
+                            
+                            DispatchQueue.main.async {
+                                Task{ // fetch_coinmarket_cap_data
+                                    await viewModel.cryptoInformationService.fetch_coinmarket_cap_data(symbol: "SHIB,CAKE,APE,DEFI")
+                                    {
+                                        
+                                        data in DispatchQueue.main.async {
+                                            print("gainers_and_losers_data",data)
+                                            gainers_and_losers_data = data
+                
+                                            isLoading = false
+                                            
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    
+//                    let _: [()] = await [load1, load2]
+                    
+                }
+            }
+        }
+        }
     }
-    
 }
