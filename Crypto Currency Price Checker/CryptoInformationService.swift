@@ -669,30 +669,60 @@ public final class CryptoInformationService: NSObject {
 
     }
     
-//    public func fetch_coinmarket_cap_latest(completion: @escaping (coin_market_cap_data_dict)->()) async {
-//
-//            // ?CMC_PRO_API_KEY=07ed2739-4bcb-4806-83ae-948f1ce01ae9&
-//            let url = URL(string: "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?CMC_PRO_API_KEY=07ed2739-4bcb-4806-83ae-948f1ce01ae9")!
-//            let task = URLSession.shared.dataTask(with: url) { data, response, error in
-//                guard let data = data else { return }
-//                do {
-//                     let json = try JSONSerialization.jsonObject(with: data, options: [])
-//                     //print(json)
-//
-//                   let cmc_data = try JSONDecoder()
-//                       .decode(coin_market_cap_data_dict.self, from: data)
-//
-//                    //print(cmc_data)
-//
-//                    completion(cmc_data)
-//
-//                } catch {
-//                    print(error)
-//                }
-//            }
-//            task.resume()
+    public func fetch_crypto_news(completion: @escaping (CryptoNews)->()) async {
 
-//    }
+        
+            // ?CMC_PRO_API_KEY=07ed2739-4bcb-4806-83ae-948f1ce01ae9&
+            let url = URL(string: "https://newsapi.org/v2/everything?q=crypto&apiKey=94ba1e8999df4532816352e87dec286b")!
+            let task = URLSession.shared.dataTask(with: url) { data, response, error in
+                guard let data = data else { return }
+                do {
+       
+                   let news_data = try JSONDecoder()
+                       .decode(CryptoNews.self, from: data)
+
+                    //print(cmc_data)
+
+                    completion(news_data)
+
+                } catch {
+                    print(error)
+                }
+            }
+            task.resume()
+
+    }
     
+}
+
+// MARK: - CoinMarketCapData
+public struct CryptoNews: Codable {
+    let status: String
+    let totalResults: Int
+    let articles: [Article]
+}
+
+// MARK: - Article
+struct Article: Codable {
+    //let id = UUID()
+    let source: Source
+    let author: String?
+    let title, articleDescription: String
+    let url: String
+    let urlToImage: String
+    let publishedAt: String
+    let content: String
+
+    enum CodingKeys: String, CodingKey {
+        case source, author, title
+        case articleDescription = "description"
+        case url, urlToImage, publishedAt, content
+    }
+}
+
+// MARK: - Source
+struct Source: Codable {
+    let id: String?
+    let name: String
 }
 

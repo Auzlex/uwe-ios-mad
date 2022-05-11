@@ -110,6 +110,17 @@ struct AssetQuickView: View {
     
 }
 
+
+struct TodoPG: Identifiable {
+    var id = UUID().uuidString
+    var source: Source
+    var author: String
+    var title, articleDescription: String
+    var url: String
+    var urlToImage: String
+}
+
+
 struct DashboardView: View {
     
     @ObservedObject var viewModel: CCPCViewModel
@@ -117,10 +128,11 @@ struct DashboardView: View {
     
     @State var isLoading: Bool = true // async loading variable for this view
     
-    @State var text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu magna sapien. Nullam sagittis fringilla nulla, quis faucibus eros iaculis quis. Phasellus pellentesque aliquet neque."
+    @State var text = ""
     
     @State var latest_trends_data: CoinMarketCapData?
     @State var gainers_and_losers_data: CoinMarketCapData?
+    @State var news_data: [String] = []
     
     init(viewModel: CCPCViewModel)
     {
@@ -163,21 +175,24 @@ struct DashboardView: View {
             }
             else
             {
-                VStack (alignment: .leading) {
-                        Text(text)
-                        .padding()
-                        .lineLimit(1)
-                        .fixedSize()
-                        //https://swiftuirecipes.com/blog/swiftui-marquee
-                        .marquee(duration: 15, direction: .rightToLeft, autoreverse:true )
-                        .background(Color.yellow)
-                        .frame(width: .infinity)
-                        .foregroundColor(Color.black)
-                        
-                }
-                //.background(Color.yellow)
-    //            .frame(width: 230, height: 30)
-    //            .clipShape(RoundedRectangle(cornerRadius: 0, style: .continuous))
+                
+                Text(text)
+                    .padding()
+                    .lineLimit(1)
+                    .fixedSize()
+                    //https://swiftuirecipes.com/blog/swiftui-marquee
+                    .marquee(duration: 15, direction: .rightToLeft, autoreverse:true )
+                    .background(Color.yellow)
+                    .foregroundColor(Color.black)
+                    //.edgesIgnoringSafeArea(.all)
+//                    .frame(
+//                      minWidth: 0,
+//                      maxWidth: .infinity,
+//                      minHeight: 0,
+//                      maxHeight: 150,
+//                      alignment: .topLeading
+//                    )
+
                 
                 Text("Top Coins")
                     .bold()
@@ -239,26 +254,49 @@ struct DashboardView: View {
                 ScrollView() {
                     LazyVGrid(columns: threeColumnGrid) {
                         // Display the item
-                        ForEach((0...10), id: \.self) { elem in
+                        // API key for news API https://newsapi.org/v2/everything?q=crypto&apiKey=94ba1e8999df4532816352e87dec286b
+                        
+                        ForEach(news_data, id: \.self) { article in
+
+                            let data = article.components(separatedBy: "|")
                             
                             HStack {
-                                
-                                Image(systemName: symbols[elem % symbols.count])
-                                    .font(.system(size: 30))
-                                    .frame(width: 100, height: 100)
-                                    .background(colors[elem % colors.count])
-                                    .cornerRadius(10)
-                                
+
+                                AsyncImage(
+                                    url:URL(string:data[0]
+                                    ),
+                                    content: { image in
+                                        image.resizable()
+                                            //.aspectRatio(contentMode: .fit)
+                                            .frame(width: 125, height: 100)
+                                            .cornerRadius(10)
+                                            //.jpegData(compressionQuality: 0.2)
+                                    },
+                                    placeholder: {
+                                        ProgressView()
+                                        //PlaceHolderIcon(symbolname: symbolNameAlone)
+                                            //.frame(width: 128, height: 128, alignment: .center)
+                                    }
+                                )
+                                .font(.system(size: 30))
+                                .frame(width: 125, height: 100)
+                                //.background(colors[elem % colors.count])
+                                .cornerRadius(10)
+
                                 VStack(alignment: .leading) {
-                                    Text("Title")
-                                        .font(.title3)
+                                    Text(data[1])
+                                        .font(.body)
                                         .bold()
-                                    
-                                    Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu magna sapien. Nullam sagittis fringilla nulla, quis faucibus eros iaculis quis. Phasellus pellentesque aliquet neque.")
+
+                                    Text(data[2])
                                         .font(.system(size: 12))
+//
+                                    Link("View Article", destination: URL(string: data[3])!)
                                 }
-                                
+
                             }
+                            .padding()
+                            .frame(maxWidth: .infinity, maxHeight: 400)
                             .background(Color("TextColorInvert"))
                             .cornerRadius(15)
                             .shadow(color: .gray, radius: 0, x: 1, y: 2)
@@ -266,8 +304,9 @@ struct DashboardView: View {
                                 RoundedRectangle(cornerRadius: 15)
                                     .stroke(Color.gray, lineWidth: 0.7)
                             )
-                            
-                            
+                            //.frame(minWidth:.infinity)
+
+
 
                         }
                     }
@@ -325,9 +364,31 @@ struct DashboardView: View {
                                             print("gainers_and_losers_data",data)
                                             gainers_and_losers_data = data
                 
-                                            isLoading = false
                                             
                                             
+                                            DispatchQueue.main.async {
+                                                Task{ // fetch_coinmarket_cap_data
+                                                    await viewModel.cryptoInformationService.fetch_crypto_news()
+                                                    {
+                                                        
+                                                                                                                
+                                                        news_data in DispatchQueue.main.async {
+                                                            print("news_data",news_data)
+                                                            self.news_data = []
+                                                            
+                                                            
+                                                            // i fucking hate this programming language swift UI is so fucking shite I had to do jank workarounds!
+                                                            for article in news_data.articles {
+                                                                self.news_data.append( "\(article.urlToImage)|\(article.title)|\(article.articleDescription)|\(article.url)" )
+
+                                                            }
+                                
+                                                            isLoading = false
+
+                                                        }
+                                                    }
+                                                }
+                                            }
                                             
                                         }
                                     }
@@ -345,3 +406,26 @@ struct DashboardView: View {
         }
     }
 }
+
+//
+//public struct ArticleHash: Codable {
+//
+//    let id = UUID()
+//    var source: Source
+//    var author: String
+//    var title, articleDescription: String
+//    var url: String
+//    var urlToImage: String
+//    var publishedAt: Date
+//    var content: String
+//
+////    var hashValue: Int {
+////        return self.id
+////    }
+//
+////    enum CodingKeys: String, CodingKey {
+////        case source, author, title
+////        case articleDescription = "description"
+////        case url, urlToImage, publishedAt, content
+////    }
+//}
