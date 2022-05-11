@@ -142,16 +142,44 @@ struct AssetView: View {
                                     .foregroundColor((Double(self.price_history!.priceChangePercent)! > 0) ? .green : .red)
                             }
                             HStack{
-                                Text("24H:")
+                                Text("1H:")
                                     .font(.body)
                                 
-                                var data = self.asset_data?.data
-                                
-                                Text("\( self.asset_data?.quote.usd.percentChange24H ?? 0 )")
+//                                var data = self.asset_data?.data
+//
+                                Text("\( String(format: "%.3f", self.asset_data?.quote.usd.percentChange1H ?? 0) )%")
                                     .font(.body)
-                                    //.fontWeight(.bold)
-                                    //.padding(.top, 5)
-                                    //.foregroundColor((Double(self.price_history!.priceChangePercent)! > 0) ? .green : .red)
+                                    .foregroundColor((self.asset_data?.quote.usd.percentChange1H ?? 0 > 0) ? .green : .red)
+                            }
+                            HStack{
+                                Text("7D:")
+                                    .font(.body)
+                                
+//                                var data = self.asset_data?.data
+//
+                                Text("\( String(format: "%.3f", self.asset_data?.quote.usd.percentChange7D ?? 0))%")
+                                    .font(.body)
+                                    .foregroundColor((Double(self.asset_data?.quote.usd.percentChange7D ?? 0) > 0) ? .green : .red)
+                            }
+                            HStack{
+                                Text("30D:")
+                                    .font(.body)
+                                
+//                                var data = self.asset_data?.data
+//
+                                Text("\( String(format: "%.3f", self.asset_data?.quote.usd.percentChange30D ?? 0) )%")
+                                    .font(.body)
+                                    .foregroundColor((Double(self.asset_data?.quote.usd.percentChange30D ?? 0) > 0) ? .green : .red)
+                            }
+                            HStack{
+                                Text("60D:")
+                                    .font(.body)
+                                
+//                                var data = self.asset_data?.data
+//
+                                Text("\( String(format: "%.3f", self.asset_data?.quote.usd.percentChange60D ?? 0) )%")
+                                    .font(.body)
+                                    .foregroundColor((Double(self.asset_data?.quote.usd.percentChange60D ?? 0) > 0) ? .green : .red)
                             }
                         
                   
@@ -299,7 +327,16 @@ struct AssetView: View {
                                                             // with historic_kline_data generate LineDataSet close
                                                             //let close = historic_kline_data.map { $0.close }
 
-                                                            asset_data = data2.data
+                                                            //asset_data = data2.data//Datum()//Datum(data2.data)
+                                                            //print(asset_data)
+                                                            
+                                                            let keys = data2.data.map{$0.key}
+                                                            let values = data2.data.map {$0.value}
+                                                            
+                                                            for key in keys.indices {
+                                                                asset_data = values[key]
+                                                                break;
+                                                            }
                                   
                                                             isLoading = false
                                                             

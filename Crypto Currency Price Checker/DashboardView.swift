@@ -171,6 +171,7 @@ struct DashboardView: View {
                         //https://swiftuirecipes.com/blog/swiftui-marquee
                         .marquee(duration: 15, direction: .rightToLeft, autoreverse:true )
                         .background(Color.yellow)
+                        .frame(width: .infinity)
                         .foregroundColor(Color.black)
                         
                 }
@@ -188,6 +189,8 @@ struct DashboardView: View {
                         
                         // Display the item
                         ForEach(keys.indices, id: \.self) { index in
+                            
+                            
                             
                             AssetQuickView(
                                 viewModel: self.viewModel,
@@ -290,6 +293,29 @@ struct DashboardView: View {
                             print("latest_trends_data",data)
                             latest_trends_data = data
                             
+                            let keys = latest_trends_data!.data.map{$0.key}
+                            let values = latest_trends_data!.data.map {$0.value}
+                            
+                            text = ""
+                            
+                            for key in keys.indices {
+                                var asset_data = values[key]
+                                let percentage = asset_data.quote.usd.percentChange24H ?? 0
+                                text += " \(asset_data.symbol) \(String(format: "%.2f",  percentage))%"
+                                
+                                if(percentage > 0)
+                                    
+                                {
+                                    text += "▲"
+                                }
+                                else
+                                {
+                                    text += "▼"
+                                }
+                                
+                                text+="     "
+                            }
+                            
                             DispatchQueue.main.async {
                                 Task{ // fetch_coinmarket_cap_data
                                     await viewModel.cryptoInformationService.fetch_coinmarket_cap_data(symbol: "SHIB,CAKE,APE,DEFI")
@@ -300,6 +326,8 @@ struct DashboardView: View {
                                             gainers_and_losers_data = data
                 
                                             isLoading = false
+                                            
+                                            
                                             
                                         }
                                     }
